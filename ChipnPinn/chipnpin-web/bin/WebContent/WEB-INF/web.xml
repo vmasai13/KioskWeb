@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+					classpath:persistence-context.xml
+		</param-value>
+	</context-param>
+	
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<servlet>
+		<description></description>
+		<display-name>dispatcherServlet</display-name>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<url-pattern>/result</url-pattern>
+		<url-pattern>/perKiosk</url-pattern>
+		<url-pattern>/kioskIdsNGKSeries0</url-pattern>
+		<url-pattern>/kioskIdsNGKSeries1</url-pattern>
+		<url-pattern>/compareNGK</url-pattern>
+		<url-pattern>/home</url-pattern>
+		<url-pattern>/errorCodes</url-pattern>
+		<url-pattern>/StatisticsAMSorCDG</url-pattern>
+		<!-- <url-pattern>/amsKiosks</url-pattern> -->
+	</servlet-mapping>
+
+</web-app>

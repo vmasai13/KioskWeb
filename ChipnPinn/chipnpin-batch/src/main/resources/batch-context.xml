@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:batch="http://www.springframework.org/schema/batch"	
+		xmlns:aop="http://www.springframework.org/schema/aop"	
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="
+							http://www.springframework.org/schema/beans 
+							http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+							http://www.springframework.org/schema/batch 
+							http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+							http://www.springframework.org/schema/aop 
+							http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+							http://www.springframework.org/schema/context
+							http://www.springframework.org/schema/context/spring-context-3.0.xsd">							
+
+	<import resource="persistence-context.xml"/>
+	
+	<context:annotation-config />
+	
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+ 
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+ 
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+
+	<bean class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+	<property name="jobRegistry" ref="jobRegistry" />
+  </bean>
+ 
+  <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	
+	<!-- <batch:job id="importLogs" job-repository="jobRepository">
+		<batch:step id="readWriteLogs">
+			<batch:tasklet>
+				<batch:chunk reader="multiLineReaderDelegate" processor="recordProcessor" writer="lineWriter" commit-interval="10" >
+					
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job> -->
+	
+	<job id="importLogs" xmlns="http://www.springframework.org/schema/batch">
+		<step id="readWriteLogs">
+			<tasklet>
+				<chunk reader="multiLineReaderDelegate" processor="recordProcessor" writer="lineWriter"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+		
+	<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="file:C:/Users/X075668/Desktop/Desktop/CK/NGK Reporting/reporting logs/21/data*webkiosk_technical.*" />
+											   
+		<!-- <property name="resources" value="file:D:/chipnpin/tech/15mar/*.*" /> -->
+		<property name="delegate" ref="delegateMultiLineReader" />
+		<property name="strict" value="true" />
+	</bean>
+
+	<!-- run every 10 seconds -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+				<property name="jobDetail" ref="jobDetail" />
+				<property name="cronExpression" value="0 51 06 ? * *" /><!-- 
+					vijay value="second minute hour ? * *" -->
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="multilineReader" class="com.tcs.batch.file.MultiLineReader">
+		<property name="delegate" ref="delegateMultiLineReader" />
+	</bean>
+	
+	<bean id="delegateMultiLineReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+	
+	<bean id="recordProcessor" class="com.tcs.batch.file.RecordProcessor" />
+	
+	
+	<bean id="lineWriter" class="com.tcs.batch.file.LineWriter" />
+
+  <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<property name="jobClass" value="com.tcs.batch.file.JobLauncherDetails" />
+	<property name="group" value="quartz-batch" />
+	<property name="jobDataAsMap">
+	  <map>
+		<entry key="jobName" value="importLogs" />
+		<entry key="jobLocator" value-ref="jobRegistry" />
+		<entry key="jobLauncher" value-ref="jobLauncher" />
+
+	  </map>
+	</property>
+  </bean>
+
+	<context:component-scan base-package="com.klm.chipnpin.chipnpinpersistance.*" />
+	
+</beans>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch
+		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+	">
+
+	<context:component-scan base-package="com.tcs.fancylog" />
+	<context:annotation-config/>
+	<util:properties id="environmentProperties"
+		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
+	<context:property-placeholder
+		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
+
+	<bean id="fancyLogDownloadTask" class="com.tcs.fancylog.LogDownloadTask"/>
+	
+	
+	<bean name="downloadJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.tcs.fancylog.FancyLogDownloadJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="fancyLogDownloadTask" value-ref="fancyLogDownloadTask" />
+			</map>
+		</property>
+	</bean>
+
+	
+	<bean id="cronDownloadTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="downloadJob" />
+		<property name="cronExpression" value="${DownloadCronExpression}" />
+	</bean>
+
+		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="downloadJob" />
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="cronDownloadTrigger" />
+			</list>
+		</property>
+	</bean>
+
+
+
+	<!-- <util:map id="mapPxAnalyzer" map-class="java.util.HashMap"
+		key-type="java.lang.String" value-type="com.tcs.fancylog.application.PxAnalyzer">
+		<entry key="ListPassenger">
+			<bean id="ListPassenger" class="com.tcs.fancylog.analysis.application.ListPassenger" />
+		</entry>
+		<entry key="ListDocument">
+			<bean id="ListDocument" class="com.tcs.fancylog.analysis.application.ListDocument" />
+		</entry>
+
+		<entry key="UpdatePassenger">
+			<bean id="UpdatePassenger" class="com.tcs.fancylog.analysis.application.UpdatePassenger" />
+		</entry>
+		<entry key="UpdateDocument">
+			<bean id="UpdateDocument" class="com.tcs.fancylog.analysis.application.UpdateDocument" />
+		</entry>
+
+		<entry key="OffloadPassenger">
+			<bean id="OffloadPassenger"
+				class="com.tcs.fancylog.analysis.application.OffloadPassenger" />
+		</entry>
+
+		<entry key="GetSeatMap">
+			<bean id="GetSeatMap" class="com.tcs.fancylog.analysis.application.GetSeatMap" />
+		</entry>
+	</util:map>
+ -->
+
+</beans>

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+<!-- 	<job id="errcode" xmlns="http://www.springframework.org/schema/batch">
+		<step id="steperrorcode1">
+			<tasklet allow-start-if-complete="true"> 
+			<tasklet>
+				<chunk reader="multiErrorReader" processor="errorProcessor" writer="errorWriter" commit-interval="1" />
+			</tasklet>
+		</step>
+	</job>
+	<bean id="errorProcessor" class="com.klm.tcs.flatfile.ErrorProcessor">
+	</bean>
+	<bean id="errorWriter" class="com.klm.tcs.kiosk.ErrorWriter">
+		<property name="errors" value="${error.errors}" />
+		<property name="delegate" ref="csvErrorWriter" />
+	</bean> -->
+	<!-- <job id="icicsvjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepcsv11">
+			<tasklet allow-start-if-complete="true">
+			<tasklet>
+				<chunk reader="multiItemReader" processor="iciRecordProcessor" writer="csvWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+
+	<job id="kioskjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkiosk1">
+			<tasklet allow-start-if-complete="true">
+			<tasklet>
+				<chunk reader="multiItemReaderKiosk" processor="kioskRecordProcessor" writer="kioskWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+ -->
+ 	<!-- Batch job for reading soap and technical logs -->
+	<job id="kioskmultirequestjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkioskFlow1" next="stepkioskFlow2">
+			<tasklet allow-start-if-complete="true">
+				<chunk reader="multiItemReaderKioskBLS" processor="kioskmultirequestProcessor" writer="kioskMultiRequestWriterBLS"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+		<step id="stepkioskFlow2">
+			<tasklet>
+				<chunk reader="multiItemReaderKioskIBM" processor="kioskmultirequestProcessor" writer="kioskMultiRequestWriterIBM"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+	
+	<!--  <job id="kiosktransactionIdjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkioskFlow1">
+			<tasklet>
+				<chunk reader="multiItemReaderKioskFlowTrace" processor="kioskmultirequesttransactionProcessor" writer="kioskMultiRequestTransactionWriter"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+	</job> -->
+	
+	<!--  <job id="kioskMultireqcsvjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkioskMulti2">
+			<tasklet>
+				<chunk reader="csvItemReaderKioskFlowTrace" processor="kioskmultirequestProcessor" writer="kioskMultiReqVWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job> -->
+	
+	<!-- <job id="kioskflowtracejob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkioskFlow2">
+			<tasklet>
+				<chunk reader="multiItemReaderKioskFlowTrace" processor="kioskFlowTraceProcessor" writer="kioskFlowTraceWriter"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+	</job> -->
+	
+<!--	<job id="kioskflowcsvjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkiosk2">
+			<tasklet>
+				<chunk reader="csvItemReaderKioskFlowTrace" processor="kioskFlowTraceProcessor" writer="kioskFlowCSVWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+
+	<job id="kioskcsvjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkiosk3">
+			<tasklet>
+				<chunk reader="csvItemReaderKiosk" processor="kioskRecordProcessor" writer="kioskCSVWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
+		<job id="kioskcsvsellproductjob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkiosksell">
+			<tasklet>
+				<chunk reader="csvItemReaderKiosk" processor="kioskRecordProcessor" writer="kioskCSVSellProductWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job> -->
+	<!-- <job id="kioskcsvsellproductjob1" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepkiosksell1">
+			<tasklet>
+				<chunk reader="csvItemReaderKiosk" processor="kioskRecordProcessor" writer="kioskCSVSellProductWriter" commit-interval="10" />
+			</tasklet>
+		</step>
+	</job> -->
+
+	<bean id="iciRecordProcessor" class="com.klm.tcs.flatfile.ICIRecordProcessor">
+	</bean>
+
+	<bean id="kioskRecordProcessor" class="com.klm.tcs.kiosk.KioskRecordProcessor" />
+
+	<bean id="kioskFlowTraceProcessor" class="com.klm.tcs.kiosk.KioskFlowTraceProcessor" />
+	<bean id="kioskmultirequestProcessor" class="com.klm.tcs.kiosk.KioskMultiRequestProcessor" />
+	<bean id="kioskmultirequesttransactionProcessor" class="com.klm.tcs.kiosk.KioskmultirequesttransactionProcessor" />
+	
+	<bean id="multiItemReaderKiosk" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.log.inputpath}" />
+		<!-- <property name="delegate" ref="multilineReaderKiosk" /> -->
+		<property name="delegate" ref="delegateReader" />
+		<property name="strict" value="true" />
+	</bean>
+	<bean id="multiItemReaderKioskBLS" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.log.BLS.inputpath}" />
+		<!-- <property name="delegate" ref="multilineReaderKiosk" /> -->
+		<property name="delegate" ref="delegateReader" />
+		<property name="strict" value="true" />
+	</bean>
+	<bean id="multiItemReaderKioskIBM" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.log.IBM.inputpath}" />
+		<!-- <property name="delegate" ref="multilineReaderKiosk" /> -->
+		<property name="delegate" ref="delegateReader" />
+		<property name="strict" value="true" />
+	</bean>
+	
+	<bean id="multiItemReaderKioskFlowTrace" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.log.inputpath}" />
+		<property name="delegate" ref="delegateReader" />
+		<property name="strict" value="true" />
+	</bean>
+	
+	<bean id="csvItemReaderKioskFlowTrace" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.csv.inputpath}" />
+		<property name="delegate" ref="delegateReader" />
+		<property name="strict" value="true" />
+	</bean>
+
+	<bean id="csvItemReaderKiosk" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<property name="resources" value="${kiosk.csv.inputpath}" />
+		<property name="delegate" ref="multilineReaderKiosk" />
+		<property name="strict" value="true" />
+	</bean>
+
+	<bean id="multilineReaderKiosk" class="com.klm.tcs.kiosk.MultiLineReader">
+		<property name="delegate" ref="delegateReader" />
+	</bean>
+
+	<bean id="kioskWriter" class="com.klm.tcs.kiosk.KioskWriter">
+		<property name="kiosklist" value="${kiosk.kioskids}" />
+		<property name="delegate" ref="kioskWriterDelegate" />
+	</bean>
+	
+	<bean id="kioskFlowTraceWriter" class="com.klm.tcs.kiosk.KioskFlowTraceWriter">
+		<property name="delegate" ref="kioskWriterDelegate" />
+	</bean>
+	
+	<bean id="kioskMultiRequestWriter" class="com.klm.tcs.kiosk.KioskMultiRequestWriter">
+		<property name="delegate" ref="kioskWriterDelegateBLS" />
+	</bean>
+	
+	<bean id="kioskMultiRequestWriterIBM" class="com.klm.tcs.kiosk.KioskMultiRequestWriter">
+		<property name="delegate" ref="kioskWriterDelegateIBM" />
+	</bean>
+	
+	<bean id="kioskMultiRequestWriterBLS" class="com.klm.tcs.kiosk.KioskMultiRequestWriter">
+		<property name="delegate" ref="kioskWriterDelegateBLS" />
+	</bean>
+	
+	<bean id="kioskWriterDelegateBLS" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.log.BLS.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.PassThroughLineAggregator" />
+		</property>
+	</bean>
+	
+	<bean id="kioskWriterDelegateIBM" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.log.IBM.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.PassThroughLineAggregator" />
+		</property>
+	</bean>
+	
+	<bean id="kioskWriterDelegate" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.log.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.PassThroughLineAggregator" />
+		</property>
+	</bean>
+	
+	<bean id="kioskMultiRequestTransactionWriter" class="com.klm.tcs.kiosk.KioskMultiRequestTransactionWriter">
+		<property name="delegate" ref="kioskWriterDelegate" />
+	</bean>
+
+	<bean id="csvWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.csv.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="uuid,date,timestamp,requestType,pnr,etkt,checkinstatus,errorcode" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="kioskCSVWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.csv.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names"
+							value="messageUUID,date,time,kioskId,requestType,airportCode,host,clientId,pnr,etkt,lastName,firstName,checkinstatus,errorcode,uniquePassengerReference,ProhibitedReasonCode,ProhibitedReasonText" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="kioskCSVSellProductWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.csv.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names"
+							value="messageUUID,date,time,kioskId,requestType,airportCode,host,clientId,pnr,subChannel,etkt,lastName,firstName,checkinstatus,errorcode,uniquePassengerReference,ProhibitedReasonCode,ProhibitedReasonText" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="kioskFlowCSVWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.csv.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names"
+							value="flowTime,sessionId,kioskIdFromFlowTrace,flowView,executionKey" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="kioskMultiReqVWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="${kiosk.csv.outputfile}" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="lineAggregator">
+			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names"
+							value="day,timestamp,executionKey,kioskIdFromFlowTrace,flowView" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="multiItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
+		<!-- <property name="resources" value="file:D:/Support-logs/CIS-CSlog/logs2/*.*" /> -->
+		<property name="resources" value="file:D:/Support-logs/ICI/test/*.*" />
+		<property name="delegate" ref="multilineReader" />
+		<property name="strict" value="true" />
+	</bean>
+
+	<bean id="multilineReader" class="com.klm.tcs.flatfile.MultiLineReader">
+		<property name="delegate" ref="delegateReader" />
+	</bean>
+
+	<bean id="delegateReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+
+	<!-- provides step scope -->
+	<bean class="org.springframework.batch.core.scope.StepScope" />
+
+
+	<!-- enables the functionality of JobOperator.startNextInstance(jobName) -->
+	<bean id="jobParametersIncrementer" class="org.springframework.batch.core.launch.support.RunIdIncrementer" />
+
+	<bean id="simpleStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="startLimit" value="100" />
+		<property name="commitInterval" value="1" />
+	</bean>
+
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+
+	<bean class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+		<property name="jobRegistry" ref="jobRegistry" />
+	</bean>
+
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<!-- <bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean" p:dataSource-ref="dataSource" 
+		p:transactionManager-ref="transactionManager" /> -->
+
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"
+		p:transactionManager-ref="transactionManager" />
+
+	<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"
+		lazy-init="true">
+	</bean>
+
+	<bean id="placeholderProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:batch.properties" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="order" value="1" />
+	</bean>
+
+</beans>

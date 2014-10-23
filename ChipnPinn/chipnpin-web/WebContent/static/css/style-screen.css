@@ -1,0 +1,20 @@
+@charset 'UTF-8';
+body {
+    padding-top: 5px;
+    background: #fafafa;
+    color: #0088CC;
+}
+header {
+    margin-bottom: 5px;
+}
+header h1 {
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+    color: #fff;
+    margin-bottom: 1x;   
+}
+header a {
+    color: orange;
+}
+.modal {
+    color: #333;
+}
