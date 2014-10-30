@@ -16,9 +16,9 @@
 	<mvc:annotation-driven/>
 	<!-- <context:property-placeholder location="file:C://dev//vinod//config//fancylog.properties" /> -->
 	<util:properties id="fancyLogProps"
-		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
+		location="file:C://develop//code//Reporting//Log Downloader//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
 	<context:property-placeholder
-		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
+		location="file:C://develop//code//Reporting//Log Downloader//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
 	
     <!-- Factory bean that creates the Mongo instance -->
     <bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
@@ -60,7 +60,7 @@
 	<bean id="logAnalyzerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="logAnalyzerJob" />
 		<!-- <property name="cronExpression" value="00 2 0/1 * * ?" /> -->
-		<property name="cronExpression" value="00 29 14 ? * *" />
+		<property name="cronExpression" value="00 15 13 ? * *" />
 	</bean>
 	
 </beans>

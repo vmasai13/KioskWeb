@@ -152,7 +152,20 @@ public class FancySharedInfo {
     public String getSessionID(String lineText, String sessionIDPossition) {
         String sessionID = new String();
         String strs[] = lineText.split(" ");
-        sessionID = strs[Integer.valueOf(sessionIDPossition) - 1];
+        sessionID = strs[Integer.valueOf(sessionIDPossition) - 1] + " " +strs[Integer.valueOf(sessionIDPossition)];
+        int counter = sessionID.length()-1;
+        char lastIndexValue = sessionID.charAt(counter);
+        boolean gotSessionId = false;
+        while (!gotSessionId) {
+//        	Integer.getInteger(lastIndexValue, 111) != 111
+        	if (Character.isAlphabetic(lastIndexValue)) {
+        		gotSessionId = true;
+        		return sessionID;
+        	}
+        	sessionID = sessionID.substring(0, counter);
+        	counter = counter - 1;
+        	lastIndexValue = sessionID.charAt(counter);
+        }
         return sessionID;
     }
 

@@ -119,6 +119,7 @@ public class LogAnalyzerTask {
             e.printStackTrace();
         }
         APPLICATION_LOGGER.info("Download analysis Completed...   ");
+        System.out.println("Download analysis Completed...   ");
     }
 
     private boolean isValid(String logFileURL, String fileName, String date, String[] validFiles) {
@@ -175,61 +176,4 @@ public class LogAnalyzerTask {
         }
         return (directory.delete());
     }
-    
-    /*public void performTask(Calendar calendar) {
-        DBCollection dbCollection = mongoTemplate.getCollection(COLLECTION_NAME);
-        DBCursor dbCursor = dbCollection.find();
-        FancySharedInfo.getInstance().incrementCalenderByOneHr();
-
-        while (dbCursor.hasNext()) {
-            DBObject settings = dbCursor.next();
-            String applicationName = (String) settings.get("applicationName");
-            String fancyLogURLPattern = (String) settings.get("fancyLogURLPattern");
-            String host = (String) settings.get("host");
-            String nodeList = (String) settings.get("nodeList");
-            String[] nodes = nodeList.split(",");
-            String instance = (String) settings.get("instance");
-            String logInURL = (String) settings.get("logInURL");
-            String userName = (String) settings.get("userName");
-            String passWord = (String) settings.get("passWord");
-            String fileName = (String) settings.get("fileName");
-            String sessionIDPossition = (String) settings.get("sessionIdPosition");
-            String downloadLocation = (String) settings.get("downloadLocation");
-            String noOfDays = (String) settings.get("noOfDays");
-            List<String> lstHyeperLink = new ArrayList<String>();
-            APPLICATION_LOGGER.info("trying to loggin Fancylog main page");
-            HttpClient httpClient = FancySharedInfo.getInstance().getAuthenticatedHttpClient(logInURL, userName, passWord);
-
-            if (httpClient != null) {
-                String date = FancySharedInfo.getInstance().getDateFormat(calendar);
-                String logFileURL = null;
-                fancyLogURLPattern = fancyLogURLPattern.replace("<host>", host);
-                fancyLogURLPattern = fancyLogURLPattern.replace("<instance>", instance);
-                fancyLogURLPattern = fancyLogURLPattern.replace("<applicationName>", applicationName);
-                for (String node : nodes) {
-                    String fancyLogURL = fancyLogURLPattern.replace("<node>", node);
-                    String responseStream = getFancyLogMainPage(httpClient, fancyLogURL);
-                    if (responseStream != null) {
-                        Pattern regexPattern = Pattern.compile("<a\\s[^>]*href\\s*=\\s*\\\"([^\"]*)\"[^>]*>(.*?)</a>");
-                        Matcher matcher = regexPattern.matcher(responseStream);
-                        while (matcher.find()) {
-                            logFileURL = matcher.group(1);
-                            if (isValid(logFileURL, fileName, date)) {
-                                lstHyeperLink.add(logFileURL);
-                            }
-                        }
-                    }
-                }
-                if (!lstHyeperLink.isEmpty()) {
-                    starFileDownloadAndAnalysis(logInURL, userName, passWord, lstHyeperLink, sessionIDPossition, downloadLocation, noOfDays);
-                }
-                if (FancySharedInfo.getInstance().getFaildHyperLinks() != null) {
-                    APPLICATION_LOGGER.info("retrying failed log files");
-                    starFileDownloadAndAnalysis(logInURL, userName, passWord, FancySharedInfo.getInstance().getFaildHyperLinks(), sessionIDPossition, downloadLocation, noOfDays);
-                    FancySharedInfo.getInstance().clearFaildHyperLinks();
-                }
-            }
-        }
-    }*/
-
 }

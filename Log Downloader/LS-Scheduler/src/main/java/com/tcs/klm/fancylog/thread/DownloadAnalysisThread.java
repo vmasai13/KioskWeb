@@ -7,9 +7,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +33,7 @@ import com.tcs.klm.fancylog.analysis.LogAnalyzer;
 import com.tcs.klm.fancylog.domain.LogKey;
 import com.tcs.klm.fancylog.domain.Offer;
 import com.tcs.klm.fancylog.utils.FancySharedInfo;
+import com.tcs.klm.fancylog.utils.LogConstant;
 import com.tcs.klm.fancylog.utils.Utils;
 
 @Component
@@ -53,6 +56,8 @@ public class DownloadAnalysisThread implements Runnable {
     private String COLLECTION_LOGS;
 
     private Map<Offer, Integer> offerMap;
+    private ProcessTechnical processTechnical = new ProcessTechnical();
+    private ProcessSoap processSoap = new ProcessSoap();
 
     public DownloadAnalysisThread(String logInURL, String userName, String passWord, String hyperLink, String sessionIDPossition, String downloadLocation, Map<String, LogAnalyzer> logAnalyzerMap,
                     MongoTemplate mongoTemplate, String noOfDays) {
@@ -66,6 +71,10 @@ public class DownloadAnalysisThread implements Runnable {
         COLLECTION_LOGS = "logs";// + "_" + FancySharedInfo.getInstance().getDay(FancySharedInfo.getInstance().getCalendar());
         this.noOfDays = noOfDays;
         offerMap = new HashMap<Offer, Integer>();
+    }
+    
+    public DownloadAnalysisThread() {
+    	
     }
 
     @Override
@@ -85,7 +94,7 @@ public class DownloadAnalysisThread implements Runnable {
                 APPLICATION_LOGGER.info("proccessing {}", fileName);
                 BufferedInputStream isTextOrTail = new BufferedInputStream(getMethodLog.getResponseBodyAsStream());
                 downloadFileContent(isTextOrTail, fileName);
-                //analizeFileContent(fileName);
+//                analizeFileContent(fileName);
                 APPLICATION_LOGGER.info("done with {}", fileName);
             }
             else {
@@ -99,61 +108,22 @@ public class DownloadAnalysisThread implements Runnable {
 
     }
 
-    private void analizeFileContent(String fileName) {
-        String year = Calendar.getInstance().get(Calendar.YEAR) + "";
-        BufferedReader br = null;
-        try {
-            File file = new File(fileName);
-            br = new BufferedReader(new FileReader(file));
-            StringBuffer sbf = new StringBuffer();
-            String sCurrentLine = null;
-            while ((sCurrentLine = br.readLine()) != null) {
-                if (sCurrentLine.startsWith(year)) {
-                    try {
-                        processLastLine(sbf.toString(), sessionIDPossition, year, fileName);
-                    }
-                    catch (Exception e) {
-                        APPLICATION_LOGGER.error(sbf.toString());
-                        APPLICATION_LOGGER.error(e.getMessage());
-                    }
-                    sbf.delete(0, sbf.length());
-                    sbf.append(sCurrentLine);
-                }
-                else {
-                    sbf.append(sCurrentLine);
-                }
-            }
-
-            DBCollection offerCollection = mongoTemplate.getCollection("offer");
-            Set<Offer> offerSet = offerMap.keySet();
-            for (Offer offer : offerSet) {
-                // increase no of offers by 1
-                BasicDBObject newDocument = new BasicDBObject().append("$inc", new BasicDBObject().append("count", offerMap.get(offer).intValue()));
-                // find query for productType and name
-                BasicDBObject searchQuery = new BasicDBObject();
-                searchQuery.append("productName", offer.getProductName()).append("productType", offer.getProductType()).append("productClass", offer.getProductClass()).append("date", offer.getDate());
-
-                offerCollection.update(searchQuery, newDocument, true, false);
-                /*
-                 * System.out.println("productName :" + offer.getProductName() + "productType :" + offer.getProductType() + "productClass :" + offer.getProductClass() + "date :" + offer.getDate() + "count : " +
-                 * offerMap.get(offer).intValue());
-                 */
-            }
-
-            br.close();
-            file.delete();
-        }
-        catch (Exception exception) {
-            APPLICATION_LOGGER.error("excetion occured while Analyzing {}", exception);
-            try {
-                br.close();
-            }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
+    public void analizeFileContent(String fileName, String outputFile, String fileType, String identify) {
+    	StringBuffer sbf = new StringBuffer();
+    	try {
+    		if (fileType.equals("technical")) {
+    			sessionIDPossition = "4"; 
+    			processTechnical.processWebkioskTechnical(fileName, outputFile, sessionIDPossition, identify);
+    		} else if(fileType.equals("soap")){
+    			sessionIDPossition = "3";
+    			processSoap.processSoapLogs(fileName, outputFile, sessionIDPossition, identify);
+    		}
+    	}
+    	catch (Exception e) {
+    		System.out.println(e);
+    		APPLICATION_LOGGER.error(sbf.toString());
+    		APPLICATION_LOGGER.error(e.getMessage());
+    	}
     }
 
     private void downloadFileContent(BufferedInputStream isTextOrTail, String fileName) {
@@ -186,7 +156,7 @@ public class DownloadAnalysisThread implements Runnable {
 
     }
 
-    private void processLastLine(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
+    private void \(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
         if (lineText.startsWith(year) && lineText.endsWith("Envelope>")) {
             String sessionID = null;
             String serviceName = null;
