@@ -9,11 +9,19 @@
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.1.0.RC2/spring-beans-3.1.0.RC2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/3.1.0.RC2/spring-core-3.1.0.RC2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-asm/3.1.0.RC2/spring-asm-3.1.0.RC2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/C:/dev/repo/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-expression/3.1.0.RC2/spring-expression-3.1.0.RC2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-commons-core/1.2.0.M2/spring-data-commons-core-1.2.0.M2.jar" sourcepath="M2_REPO/org/springframework/data/spring-data-commons-core/1.2.0.M2/spring-data-commons-core-1.2.0.M2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-tx/3.1.0.RC2/spring-tx-3.1.0.RC2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/C:/dev/repo/aopalliance/aopalliance/1.0/aopalliance-1.0-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.1.0.RC2/spring-aop-3.1.0.RC2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/3.1.0.RC2/spring-context-3.1.0.RC2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mongodb/mongo-java-driver/2.6.5/mongo-java-driver-2.6.5.jar" sourcepath="M2_REPO/org/mongodb/mongo-java-driver/2.6.5/mongo-java-driver-2.6.5-sources.jar"/>

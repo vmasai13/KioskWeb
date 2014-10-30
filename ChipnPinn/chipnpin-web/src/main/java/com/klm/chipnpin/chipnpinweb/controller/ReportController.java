@@ -27,7 +27,7 @@ import com.klm.chipnpin.chipnpinweb.services.RetrieveReportDetails;
 @Controller
 public class ReportController {
 
-	public static String kioskId_Properties = "C:/Users/X075668/Desktop/Desktop/CK/NGK Reporting/cassandrabatchici/src/main/resources/kioskids.properties";
+	public static String kioskId_Properties = "C:/develop/code/Reporting/cassandrabatchici/src/main/resources/kioskids.properties";
 	@Autowired
 	RetrieveReportDetails retrieveReportDetails;
 	

@@ -10,7 +10,7 @@ import org.springframework.batch.item.ItemProcessor;
 
 public class KioskMultiRequestProcessor implements ItemProcessor<String, RawRecord> {
 
-	public static String kioskId_Properties = "C:/Users/X075668/Desktop/Desktop/CK/NGK Reporting/cassandrabatchici/src/main/resources/kioskids.properties";
+	public static String kioskId_Properties = "C:/develop/code/Reporting/cassandrabatchici/src/main/resources/kioskids.properties";
 	
 	@Override
 	public RawRecord process(String rawString) throws Exception {

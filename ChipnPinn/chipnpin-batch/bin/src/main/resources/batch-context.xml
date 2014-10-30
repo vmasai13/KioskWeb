@@ -54,7 +54,7 @@
 	</job>
 		
 	<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
-		<property name="resources" value="file:C:/Users/X075668/Desktop/Desktop/CK/NGK Reporting/reporting logs/12-Oct/data*webkiosk_technical.*" />
+		<property name="resources" value="file:C:/data/download/26/data*webkiosk_technical.*" />
 											   
 		<!-- <property name="resources" value="file:D:/chipnpin/tech/15mar/*.*" /> -->
 		<property name="delegate" ref="delegateMultiLineReader" />

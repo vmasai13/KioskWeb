@@ -16,10 +16,15 @@
 
 	<context:component-scan base-package="com.tcs.fancylog" />
 	<context:annotation-config/>
-	<util:properties id="environmentProperties"
+	<!-- <util:properties id="environmentProperties"
 		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
 	<context:property-placeholder
 		location="file:C://Users//X075668//Desktop//Desktop//CK//NGK Reporting//LogStatistics//LS-Scheduler//src//main//resources//fancyLogDownload.properties" />
+ -->
+	<util:properties id="environmentProperties"
+		location="file:C:/develop/code/Reporting/Log Downloader/LS-Scheduler/src/main/resources/fancyLogDownload.properties" />
+	<context:property-placeholder
+		location="file:C:/develop/code/Reporting/Log Downloader/LS-Scheduler/src/main/resources/fancyLogDownload.properties" />
 
 	<bean id="fancyLogDownloadTask" class="com.tcs.fancylog.LogDownloadTask"/>
 	
