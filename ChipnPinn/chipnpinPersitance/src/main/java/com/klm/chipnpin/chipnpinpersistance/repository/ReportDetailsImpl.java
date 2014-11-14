@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import com.klm.chipnpin.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinpersistance.domain.ServiceDetails;
 
 
@@ -49,5 +50,11 @@ public class ReportDetailsImpl implements ReportDetails{
 		Query query = new Query(Criteria.where("date").is(date));
 		return mongoTemplate.find(query, ServiceDetails.class);
 	
+	}
+
+	@Override
+	public void saveKac(KACServiceDetails detail) {
+		mongoTemplate.save(detail);
+		
 	}
 }

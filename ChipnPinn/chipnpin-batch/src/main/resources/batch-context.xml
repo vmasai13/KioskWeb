@@ -52,6 +52,15 @@
 			</tasklet>
 		</step>
 	</job>
+	
+	<job id="importSoapLogs" xmlns="http://www.springframework.org/schema/batch">
+		<step id="readSoapWriteLogs">
+			<tasklet>
+				<chunk reader="multiLineReaderDelegate" processor="recordProcessorCreditCard" writer="lineWriterCreditCard"
+					commit-interval="10" />
+			</tasklet>
+		</step>
+	</job>
 		
 	<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
 		<property name="resources" value="file:C:/data/download/07/data*webkiosk_technical.*" />
@@ -84,10 +93,19 @@
 	</bean>
 	
 	<bean id="recordProcessor" class="com.tcs.batch.file.RecordProcessor" />
-	
-	
 	<bean id="lineWriter" class="com.tcs.batch.file.LineWriter" />
-
+	<bean id="recordProcessorCreditCard" class="com.tcs.batch.file.CreditCardRecordProcessor" />
+	<bean id="lineWriterCreditCard" class="com.tcs.batch.file.CreditCardLineWriter" />
+	<!-- run every 10 seconds -->
+  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	<property name="triggers">
+	  <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="jobDetail" />
+		<property name="cronExpression" value="0 24 11 ? * *" />
+	  </bean>
+	</property>
+  </bean>
+ 
   <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
 	<property name="jobClass" value="com.tcs.batch.file.JobLauncherDetails" />
 	<property name="group" value="quartz-batch" />

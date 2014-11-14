@@ -11,9 +11,12 @@
 		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
 	</bean>
 
-	<beans profile="default">
-		<mongo:db-factory host="localhost" port="27017" dbname="chipnpinTest"/>
-	</beans>
+	<mongo:mongo host="localhost" port="27017" />
+	<mongo:db-factory dbname="kioskPerformanceTest" />
+	
+	<!-- <beans profile="default"> 
+		<mongo:db-factory host="localhost" port="27017" dbname="kioskPerformanceTest"/>
+	</beans> -->
 	
 
 		

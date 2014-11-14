@@ -1,6 +1,9 @@
 package com.klm.chipnpin.chipnpinpersistance.domain;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -8,7 +11,7 @@ public class ServiceDetails {
 
 	@Id
 	private String id;
-	private String date;
+	private Date date;
 	private String sessionId;
 	private String kioskId;
 	private String view;
@@ -18,7 +21,6 @@ public class ServiceDetails {
 	public String getId() {
 		return id;
 	}
-	
 	
 	public String getResponseCode() {
 		return responseCode;
@@ -43,10 +45,10 @@ public class ServiceDetails {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	public String getSessionId() {

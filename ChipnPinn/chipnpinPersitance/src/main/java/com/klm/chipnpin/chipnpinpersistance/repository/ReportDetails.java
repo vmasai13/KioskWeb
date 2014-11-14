@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.klm.chipnpin.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinpersistance.domain.ServiceDetails;
 
 @Component
@@ -16,4 +17,5 @@ public interface ReportDetails {
 	List<ServiceDetails> findAll();
 	ServiceDetails find(String serviceName);
 	List<ServiceDetails> findServiceDetailsForDate(String date);
+	void saveKac(KACServiceDetails detail);
 }

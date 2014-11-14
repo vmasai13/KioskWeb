@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class ReportModel {
 
-	private String date;
+	private Date date;
 	private Date reportDate;
 	private String sessionId;
 	private String kioskId;
@@ -12,10 +12,17 @@ public class ReportModel {
 	private String key;
 	private String responseCode;
 	private String responseError;
+	private String kacNumber;
 	private int countSuccess;
 	
 	
 	
+	public String getKacNumber() {
+		return kacNumber;
+	}
+	public void setKacNumber(String kacNumber) {
+		this.kacNumber = kacNumber;
+	}
 	public int getCountSuccess() {
 		return countSuccess;
 	}
@@ -28,10 +35,10 @@ public class ReportModel {
 	public void setReportDate(Date reportDate) {
 		this.reportDate = reportDate;
 	}
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	public String getSessionId() {
