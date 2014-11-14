@@ -16,8 +16,18 @@ public class LogKey {
     private String logID;
     private String sessionID;
     private Date expireAt;
+    private String kioskId;
+    
 
-    public String getPNR() {
+    public String getKioskId() {
+		return kioskId;
+	}
+
+	public void setKioskId(String kioskId) {
+		this.kioskId = kioskId;
+	}
+
+	public String getPNR() {
         return PNR;
     }
 

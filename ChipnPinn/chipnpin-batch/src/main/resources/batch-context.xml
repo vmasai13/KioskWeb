@@ -54,7 +54,7 @@
 	</job>
 		
 	<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
-		<property name="resources" value="file:C:/data/download/26/data*webkiosk_technical.*" />
+		<property name="resources" value="file:C:/data/download/07/data*webkiosk_technical.*" />
 											   
 		<!-- <property name="resources" value="file:D:/chipnpin/tech/15mar/*.*" /> -->
 		<property name="delegate" ref="delegateMultiLineReader" />
@@ -66,7 +66,7 @@
 		<property name="triggers">
 			<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 				<property name="jobDetail" ref="jobDetail" />
-				<property name="cronExpression" value="0 24 16 ? * *" /><!-- 
+				<property name="cronExpression" value="0 16 18 ? * *" /><!-- 
 					vijay value="second minute hour ? * *" -->
 			</bean>
 		</property>

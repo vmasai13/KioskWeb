@@ -93,7 +93,7 @@ public class AnalysisThread implements Runnable {
             String serviceName = null;
             String date = null;
             if (lineText.contains(".PROVIDER_REQUEST")) {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 serviceName = FancySharedInfo.getInstance().getServiceName(xmlPayload);
                 date = FancySharedInfo.getInstance().getDate(lineText);
                 LogAnalyzer logAnalyzer = logAnalyzerMap.get(serviceName);
@@ -113,7 +113,7 @@ public class AnalysisThread implements Runnable {
                 }
             }
             else if (lineText.contains(".PROVIDER_RESPONSE")) {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 if (lstTmpKeys.containsKey(sessionID)) {
                     lstTempLogs.get(sessionID).append(lineText).append("\n");
                     serviceName = FancySharedInfo.getInstance().getServiceName(xmlPayload);
@@ -159,7 +159,7 @@ public class AnalysisThread implements Runnable {
                 }
             }
             else {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 if (lstTmpKeys.containsKey(sessionID)) {
                     lstTempLogs.get(sessionID).append(lineText).append("\n");
                 }

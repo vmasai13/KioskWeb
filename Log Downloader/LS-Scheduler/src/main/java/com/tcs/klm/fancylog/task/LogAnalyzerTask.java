@@ -44,58 +44,63 @@ public class LogAnalyzerTask {
     public void performTask(Calendar calendar) {
         
     	if (fancyLogProps != null) {
-        	String applicationName = (String) fancyLogProps.get("applicationName");
-            String fancyLogURLPattern = (String) fancyLogProps.get("fancyLogURLPattern");
-            String host = (String) fancyLogProps.get("host");
-            String nodeList = (String) fancyLogProps.get("nodeList");
-            String[] nodes = nodeList.split(",");
-            String instance = (String) fancyLogProps.get("instance");
-            String[] exceptionFileNames = ((String)fancyLogProps.get("exceptionFileNames")).split(","); 
-            String logInURL = (String) fancyLogProps.get("loginUrl");
-            String userName = (String) fancyLogProps.get("username");
-            String passWord = (String) fancyLogProps.get("password");
-            String fileName = (String) fancyLogProps.get("fileName");
-            String sessionIDPossition = (String) fancyLogProps.get("sessionIdPosition");
-            String downloadLocation = (String) fancyLogProps.get("downloadLocation");
-            String[] validFilesForDownload = ((String) fancyLogProps.get("validFilesForDownload")).split(",");
-            String noOfDays = (String) fancyLogProps.get("noOfDays");
-            List<String> lstHyeperLink = new ArrayList<String>();
-            APPLICATION_LOGGER.info("trying to loggin Fancylog main page");
-            HttpClient httpClient = FancySharedInfo.getInstance().getAuthenticatedHttpClient(logInURL, userName, passWord);
+        	try {
+				String applicationName = (String) fancyLogProps.get("applicationName");
+				String fancyLogURLPattern = (String) fancyLogProps.get("fancyLogURLPattern");
+				String host = (String) fancyLogProps.get("host");
+				String nodeList = (String) fancyLogProps.get("nodeList");
+				String[] nodes = nodeList.split(",");
+				String instance = (String) fancyLogProps.get("instance");
+				String[] exceptionFileNames = ((String)fancyLogProps.get("exceptionFileNames")).split(","); 
+				String logInURL = (String) fancyLogProps.get("loginUrl");
+				String userName = (String) fancyLogProps.get("username");
+				String passWord = (String) fancyLogProps.get("password");
+				String fileName = (String) fancyLogProps.get("fileName");
+				String sessionIDPossition = (String) fancyLogProps.get("sessionIdPosition");
+				String downloadLocation = (String) fancyLogProps.get("downloadLocation");
+				String[] validFilesForDownload = ((String) fancyLogProps.get("validFilesForDownload")).split(",");
+				String noOfDays = (String) fancyLogProps.get("noOfDays");
+				List<String> lstHyeperLink = new ArrayList<String>();
+				APPLICATION_LOGGER.info("trying to loggin Fancylog main page");
+				HttpClient httpClient = FancySharedInfo.getInstance().getAuthenticatedHttpClient(logInURL, userName, passWord);
 
-            if (httpClient != null) {
-                String date1 = FancySharedInfo.getInstance().getDateFormat(calendar);
-                // Configured the download date in property file.
-                String[] dates = ((String) fancyLogProps.getProperty("downloadDate")).split(",");
-                for(String date: dates) {
-                	String logFileURL = null;
-                    fancyLogURLPattern = fancyLogURLPattern.replace("<host>", host);
-                    fancyLogURLPattern = fancyLogURLPattern.replace("<instance>", instance);
-                    fancyLogURLPattern = fancyLogURLPattern.replace("<applicationName>", applicationName);
-                    for (String node : nodes) {
-                        String fancyLogURL = fancyLogURLPattern.replace("<node>", node);
-                        String responseStream = getFancyLogMainPage(httpClient, fancyLogURL);
-                        if (responseStream != null) {
-                            Pattern regexPattern = Pattern.compile("<a\\s[^>]*href\\s*=\\s*\\\"([^\"]*)\"[^>]*>(.*?)</a>");
-                            Matcher matcher = regexPattern.matcher(responseStream);
-                            while (matcher.find()) {
-                                logFileURL = matcher.group(1);
-                                if (isValid(logFileURL, fileName, date, validFilesForDownload)) {
-                                	lstHyeperLink.add(logFileURL);
-                                }
-                            }
-                        }
-                    }
-                    if (!lstHyeperLink.isEmpty()) {
-                        starFileDownloadAndAnalysis(logInURL, userName, passWord, lstHyeperLink, sessionIDPossition, downloadLocation, noOfDays);
-                    }
-                    if (FancySharedInfo.getInstance().getFaildHyperLinks() != null) {
-                        APPLICATION_LOGGER.info("retrying failed log files");
+				if (httpClient != null) {
+				    String date1 = FancySharedInfo.getInstance().getDateFormat(calendar);
+				    // Configured the download date in property file.
+				    String[] dates = ((String) fancyLogProps.getProperty("downloadDate")).split(",");
+				    for(String date: dates) {
+				    	String logFileURL = null;
+				        fancyLogURLPattern = fancyLogURLPattern.replace("<host>", host);
+				        fancyLogURLPattern = fancyLogURLPattern.replace("<instance>", instance);
+				        fancyLogURLPattern = fancyLogURLPattern.replace("<applicationName>", applicationName);
+				        for (String node : nodes) {
+				            String fancyLogURL = fancyLogURLPattern.replace("<node>", node);
+				            String responseStream = getFancyLogMainPage(httpClient, fancyLogURL);
+				            if (responseStream != null) {
+				                Pattern regexPattern = Pattern.compile("<a\\s[^>]*href\\s*=\\s*\\\"([^\"]*)\"[^>]*>(.*?)</a>");
+				                Matcher matcher = regexPattern.matcher(responseStream);
+				                while (matcher.find()) {
+				                    logFileURL = matcher.group(1);
+				                    if (isValid(logFileURL, fileName, date, validFilesForDownload)) {
+				                    	lstHyeperLink.add(logFileURL);
+				                    }
+				                }
+				            }
+				        }
+				        if (!lstHyeperLink.isEmpty()) {
+				            starFileDownloadAndAnalysis(logInURL, userName, passWord, lstHyeperLink, sessionIDPossition, downloadLocation, noOfDays);
+				        }
+				        if (FancySharedInfo.getInstance().getFaildHyperLinks() != null) {
+				            APPLICATION_LOGGER.info("retrying failed log files");
 //                        starFileDownloadAndAnalysis(logInURL, userName, passWord, FancySharedInfo.getInstance().getFaildHyperLinks(), sessionIDPossition, downloadLocation, noOfDays);
-                        FancySharedInfo.getInstance().clearFaildHyperLinks();
-                    }
-                }
-            }
+				            FancySharedInfo.getInstance().clearFaildHyperLinks();
+				        }
+				    }
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("Exception :"+e);
+			}
         }
     }
 

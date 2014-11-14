@@ -32,31 +32,36 @@ public class ProcessTechnical {
         		boolean isSessionIdAlreadyFound = false;
         		if(currentLine.contains(LogConstant.technical_delimiter_1+identify+LogConstant.technical_delimiter_2)) {
             		Iterator<String> iterator = sessionIdList.iterator();
+            		sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(currentLine, sessionIDPossition);
         			while(iterator.hasNext()) {
-        				bw.append(currentLine).append("\n");
-//        				bw.newLine();
-        				isSessionIdAlreadyFound = true;
-        				iterator.next();
+        				if (iterator.next().equals(sessionID)) {
+        					isSessionIdAlreadyFound = true;
+        					bw.append(currentLine);
+            				bw.newLine();
+            				break;
+        				}
         			}
         			if (!isSessionIdAlreadyFound) {
-        				sessionID = FancySharedInfo.getInstance().getSessionID(currentLine, sessionIDPossition);
         				bw.append(currentLine);
         				bw.newLine();
         				sessionIdList.add(sessionID);
         			}
         		} else if (!currentLine.contains("[")){
         			// Trying to identify the start of the exception
-        			sessionID = FancySharedInfo.getInstance().getSessionID(currentLine, sessionIDPossition);
+        			sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(currentLine, sessionIDPossition);
         			Iterator<String> iterator = sessionIdList.iterator();
         			while(iterator.hasNext()) {
         				if (iterator.next().equals(sessionID)) {
-        					isSessionIdAlreadyFound = true;
+//        					isSessionIdAlreadyFound = true;
+        					bw.append(currentLine);
+            				bw.newLine();
+        					break;
         				}
         			}
-        			if (isSessionIdAlreadyFound) {
+        			/*if (isSessionIdAlreadyFound) {
         				bw.append(currentLine);
         				bw.newLine();
-        			}
+        			}*/
         		}
             } else if (currentLine.contains("Exception")){
             	isExceptionFound = true;

@@ -76,5 +76,9 @@ public class Utils {
         }
         return outStr;
     }
+    
+    public static boolean isStringNotEmpty(String str) {
+    	return !(str == null || "".equals(str) || str.length() == 0);
+    }
 
 }

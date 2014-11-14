@@ -48,7 +48,7 @@ public class DownloadAnalysisThread implements Runnable {
     private Map<String, LogAnalyzer> logAnalyzerMap;
     private MongoTemplate mongoTemplate;
     private String downloadLocation;
-    private String noOfDays;
+    private String noOfDays = "2";
 
     private static Map<String, StringBuffer> lstTempLogs = new HashMap<String, StringBuffer>();
     private static Map<String, List<LogKey>> lstTmpKeys = new HashMap<String, List<LogKey>>();
@@ -112,11 +112,11 @@ public class DownloadAnalysisThread implements Runnable {
     	StringBuffer sbf = new StringBuffer();
     	try {
     		if (fileType.equals("technical")) {
-    			sessionIDPossition = "4"; 
-    			processTechnical.processWebkioskTechnical(fileName, outputFile, sessionIDPossition, identify);
+    			sessionIDPossition = "3"; 
+    			processTechnical.processWebkioskTechnical(fileName, outputFile, sessionIDPossition, identify.toUpperCase());
     		} else if(fileType.equals("soap")){
-    			sessionIDPossition = "3";
-    			processSoap.processSoapLogs(fileName, outputFile, sessionIDPossition, identify);
+    			sessionIDPossition = "2";
+    			processSoap.processSoapLogs(fileName, outputFile, sessionIDPossition, identify.toUpperCase());
     		}
     	}
     	catch (Exception e) {
@@ -131,10 +131,12 @@ public class DownloadAnalysisThread implements Runnable {
         GZIPInputStream gzis = null;
         OutputStream out = null;
         try {
+        	System.out.println("Downloading started for the file {}:"+ fileName);
             File targetFile = new File(fileName);
             gzis = new GZIPInputStream(isTextOrTail);
             out = new FileOutputStream(targetFile);
             IOUtils.copy(gzis, out);
+            System.out.println("Downloading ended for the file {}:"+ fileName);
             APPLICATION_LOGGER.info("Downloading is finished file {}", fileName);
         }
         catch (Exception ex) {
@@ -156,13 +158,13 @@ public class DownloadAnalysisThread implements Runnable {
 
     }
 
-    private void \(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
+    private void processLastLine(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
         if (lineText.startsWith(year) && lineText.endsWith("Envelope>")) {
             String sessionID = null;
             String serviceName = null;
             String date = null;
             if (lineText.contains(".PROVIDER_REQUEST")) {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 serviceName = FancySharedInfo.getInstance().getServiceName(lineText);
                 date = FancySharedInfo.getInstance().getDate(lineText);
                 LogAnalyzer logAnalyzer = logAnalyzerMap.get(serviceName);
@@ -186,7 +188,7 @@ public class DownloadAnalysisThread implements Runnable {
                 }
             }
             else if (lineText.contains(".PROVIDER_RESPONSE")) {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 if (lstTmpKeys.containsKey(sessionID)) {
                     lstTempLogs.get(sessionID).append(lineText).append("\n");
                     serviceName = FancySharedInfo.getInstance().getServiceName(lineText);
@@ -232,12 +234,70 @@ public class DownloadAnalysisThread implements Runnable {
                 }
             }
             else {
-                sessionID = FancySharedInfo.getInstance().getSessionID(lineText, sessionIDPossition);
+                sessionID = FancySharedInfo.getInstance().getFullSessionIdentifier(lineText, sessionIDPossition);
                 if (lstTmpKeys.containsKey(sessionID)) {
                     lstTempLogs.get(sessionID).append(lineText).append("\n");
                 }
             }
         }
+    }
+    
+    
+    private void analizeFileContent_existing(String fileName) {
+        String year = Calendar.getInstance().get(Calendar.YEAR) + "";
+        BufferedReader br = null;
+        try {
+            File file = new File(fileName);
+            br = new BufferedReader(new FileReader(file));
+            StringBuffer sbf = new StringBuffer();
+            String sCurrentLine = null;
+            while ((sCurrentLine = br.readLine()) != null) {
+                if (sCurrentLine.startsWith(year)) {
+                    try {
+                        processLastLine(sbf.toString(), sessionIDPossition, year, fileName);
+                    }
+                    catch (Exception e) {
+                        APPLICATION_LOGGER.error(sbf.toString());
+                        APPLICATION_LOGGER.error(e.getMessage());
+                    }
+                    sbf.delete(0, sbf.length());
+                    sbf.append(sCurrentLine);
+                }
+                else {
+                    sbf.append(sCurrentLine);
+                }
+            }
+
+            DBCollection offerCollection = mongoTemplate.getCollection("offer");
+            Set<Offer> offerSet = offerMap.keySet();
+            for (Offer offer : offerSet) {
+                // increase no of offers by 1
+                BasicDBObject newDocument = new BasicDBObject().append("$inc", new BasicDBObject().append("count", offerMap.get(offer).intValue()));
+                // find query for productType and name
+                BasicDBObject searchQuery = new BasicDBObject();
+                searchQuery.append("productName", offer.getProductName()).append("productType", offer.getProductType()).append("productClass", offer.getProductClass()).append("date", offer.getDate());
+
+                offerCollection.update(searchQuery, newDocument, true, false);
+                /*
+                 * System.out.println("productName :" + offer.getProductName() + "productType :" + offer.getProductType() + "productClass :" + offer.getProductClass() + "date :" + offer.getDate() + "count : " +
+                 * offerMap.get(offer).intValue());
+                 */
+            }
+
+            br.close();
+            file.delete();
+        }
+        catch (Exception exception) {
+            APPLICATION_LOGGER.error("excetion occured while Analyzing {}", exception);
+            try {
+                br.close();
+            }
+            catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }

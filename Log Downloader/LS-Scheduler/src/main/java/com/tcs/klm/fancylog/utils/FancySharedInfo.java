@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.tcs.klm.fancylog.task.LogAnalyzerTask;
 
@@ -111,6 +112,11 @@ public class FancySharedInfo {
         String dateformat = dateFormat.format(time);
         return dateformat;
     }
+    
+    public String getDateFromData(String lineText) {
+        String strs[] = lineText.split(" ");
+        return strs[0];
+    }
 
     public String getDay(Calendar calendar) {
         Date time = calendar.getTime();
@@ -149,15 +155,11 @@ public class FancySharedInfo {
         return serviceName;
     }
 
-    public String getSessionID(String lineText, String sessionIDPossition) {
-        String sessionID = new String();
-        String strs[] = lineText.split(" ");
-        sessionID = strs[Integer.valueOf(sessionIDPossition) - 1] + " " +strs[Integer.valueOf(sessionIDPossition)];
+    /*public String getActualSessionIdentifier(String sessionID) {
         int counter = sessionID.length()-1;
         char lastIndexValue = sessionID.charAt(counter);
         boolean gotSessionId = false;
         while (!gotSessionId) {
-//        	Integer.getInteger(lastIndexValue, 111) != 111
         	if (Character.isAlphabetic(lastIndexValue)) {
         		gotSessionId = true;
         		return sessionID;
@@ -167,6 +169,39 @@ public class FancySharedInfo {
         	lastIndexValue = sessionID.charAt(counter);
         }
         return sessionID;
+    }*/
+    
+    public String getActualSessionIdentifier(String sessionID) {
+    	String strs[] = sessionID.split(" ");
+        return strs[0]+"e";
+    }
+    
+    public String getFullSessionIdentifier(String lineText, String sessionIDPossition) {
+        String strs[] = lineText.split(" ");
+        if (strs[Integer.valueOf(sessionIDPossition)+1].startsWith("e")) {
+        	return strs[Integer.valueOf(sessionIDPossition)] + " " +strs[Integer.valueOf(sessionIDPossition)+1];
+        } else {
+        	return null;
+        }
+    }
+    
+    // Getting the integer position in the second session identifier
+    public int getSessionIdentifierCounter(String sessionID) {
+    	int sessionIdentifierValue = 0;
+    	String strs[] = sessionID.split(" ");
+    	String secondIdentifier = strs[1];
+    	if (Utils.isStringNotEmpty(secondIdentifier)) {
+    		int charIndex = secondIdentifier.indexOf("s");
+    		sessionIdentifierValue = Integer.parseInt(secondIdentifier.substring(1, charIndex));
+    	}
+    	return sessionIdentifierValue;
+    }
+    
+    public String getKioskId(String lineText, String sessionIDPossition) {
+    	String kioskId = new String();
+        String strs[] = lineText.split(" ");
+        kioskId = strs[Integer.valueOf(sessionIDPossition)+1];
+        return kioskId;
     }
 
     public String getDate(String line) {
