@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardServiceDetails;
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
 
@@ -25,4 +27,8 @@ public interface ReportDetails {
 	
 	// For Creditcard
 	List<CreditcardServiceDetails> findCreditCardServiceDetails(String kioskId, String fromDate, String toDate);
+	// For BillLogs
+	List<BillLogs> getReportModelForBillLogs();
+	// For DvoLogs
+	List<DvoLogs> getReportModelForDvoLogs();
 }

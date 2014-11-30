@@ -127,7 +127,7 @@ public class DownloadAnalysisThread implements Runnable {
     }
 
     private void downloadFileContent(BufferedInputStream isTextOrTail, String fileName) {
-        APPLICATION_LOGGER.info("Downloading file {}", fileName);
+//        APPLICATION_LOGGER.info("Downloading file {}", fileName);
         GZIPInputStream gzis = null;
         OutputStream out = null;
         try {
@@ -137,7 +137,7 @@ public class DownloadAnalysisThread implements Runnable {
             out = new FileOutputStream(targetFile);
             IOUtils.copy(gzis, out);
             System.out.println("Downloading ended for the file {}:"+ fileName);
-            APPLICATION_LOGGER.info("Downloading is finished file {}", fileName);
+//            APPLICATION_LOGGER.info("Downloading is finished file {}", fileName);
         }
         catch (Exception ex) {
             APPLICATION_LOGGER.error("Exception in downloadAnalysisThread {}", ex);

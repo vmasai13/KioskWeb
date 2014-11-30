@@ -13,7 +13,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardServiceDetails;
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
 import com.klm.chipnpin.chipnpinweb.util.ChipnpinCommonUtil;
@@ -81,6 +83,20 @@ public class ReportDetailsImpl implements ReportDetails{
 	public List<KACServiceDetails> findKacDetailsForAllKiosk() {
 		List<KACServiceDetails> serviceDetails = mongoTemplate.findAll(KACServiceDetails.class);
 		return Collections.unmodifiableList(serviceDetails);
+	}
+	
+	// For getting the bill logs from DB
+	@Override
+	public List<BillLogs> getReportModelForBillLogs() {
+		List<BillLogs> billLogDetails = mongoTemplate.findAll(BillLogs.class);
+		return Collections.unmodifiableList(billLogDetails);
+	}
+	
+	// For getting the dvo logs from DB
+	@Override
+	public List<DvoLogs> getReportModelForDvoLogs() {
+		List<DvoLogs> dvoLogDetails = mongoTemplate.findAll(DvoLogs.class);
+		return Collections.unmodifiableList(dvoLogDetails);
 	}
 
 	@Override

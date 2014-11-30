@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardServiceDetails;
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.repository.ReportDetails;
@@ -59,6 +61,16 @@ public class RetrieveReportDetails {
     public List<KacReportModel> getKacReportModelForSelectiveDate(String kacName, String from, String to, String kioskId) {
         List<KACServiceDetails> serviceDetailsFromDB = reportDetails.findKacDetailsForSelectiveDate(kacName, from, to, kioskId);
         return doamin.convertToKacReportDomain(serviceDetailsFromDB);
+    }
+    
+    public List<BillLogs> getReportModelForBillLogs() {
+    	List<BillLogs> serviceDetailsFromDB = reportDetails.getReportModelForBillLogs();
+    	return serviceDetailsFromDB;
+    }
+    
+    public List<DvoLogs> getReportModelForDvoLogs() {
+    	List<DvoLogs> serviceDetailsFromDB = reportDetails.getReportModelForDvoLogs();
+    	return serviceDetailsFromDB;
     }
 
 }

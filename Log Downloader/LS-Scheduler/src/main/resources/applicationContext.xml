@@ -60,7 +60,7 @@
 	<bean id="logAnalyzerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="logAnalyzerJob" />
 		<!-- <property name="cronExpression" value="00 2 0/1 * * ?" /> -->
-		<property name="cronExpression" value="00 36 09 ? * *" />
+		<property name="cronExpression" value="00 37 08 ? * *" />
 	</bean>
 	
 </beans>

@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
+import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.model.CreditCardReportModel;
 import com.klm.chipnpin.chipnpinweb.model.KacReportModel;
 import com.klm.chipnpin.chipnpinweb.model.ReportModel;
@@ -159,7 +161,7 @@ public class ReportController {
      * List<CreditCardReportModel> reportModel = retrieveReportDetails.getCreditCArdReportModelForAllKiosk(); System.out.println("hihih"); return createCreditCardModel(reportModel, outputModel); }
      * 
      * private List<CreditCardOutputModel> createCreditCardModel(List<CreditCardReportModel> reportModel, List<CreditCardOutputModel> outputModelList) { Set<String> dates = new HashSet<String>();
-     * Iterator<CreditCardReportModel> reports = reportModel.iterator(); while (reports.hasNext()) { CreditCardReportModel report = (CreditCardReportModel) reports.next(); //dates.add(report.getDate()); - vijay commented
+     * Iterator<CreditCardReportModel> reports = reportModel.iterator(); while (reports.hasNext()) { CreditCardReportModel report = (CreditCardReportModel) reports.next(); //dates.add(report.getDate());
      * } Iterator<String> dateItr = dates.iterator(); while (dateItr.hasNext()) { CreditCardOutputModel model = null; int countSuccess = 0; String date = (String) dateItr.next(); for(CreditCardReportModel report :
      * reportModel) { model = new CreditCardOutputModel();
      * 
@@ -345,7 +347,6 @@ public class ReportController {
     	/*    	Calendar calendar = Calendar.getInstance(); //07/08/2014
         calendar.setTime(ChipnpinCommonUtil.stringToDate(fromDate));
     	String dateToGraph = calendar.get(Calendar.YEAR) + ", " + calendar.get(Calendar.MONTH) + ", " + calendar.get(Calendar.DAY_OF_MONTH);
-		System.out.println("Vijay CreditCardSwipeOverview");
 		responseMap.put(dateToGraph, counters);
 		
 		Calendar calendar1 = Calendar.getInstance(); //07/08/2014
@@ -481,6 +482,25 @@ public class ReportController {
 		model.setViewName("result");
 		return model;
 	}
+	
+	@RequestMapping("/billLogs")
+	public ModelAndView billLogsResult() throws FileNotFoundException, IOException {
+		ModelAndView model = new ModelAndView ();
+		List<BillLogs> billLogModel = retrieveReportDetails.getReportModelForBillLogs();
+		model.addObject("jsonObject", billLogModel);
+        model.setViewName("billLogsResult");
+		return model;
+	}
+	
+	@RequestMapping("/dvoLogs") //vijay
+	public ModelAndView dvoLogsResult() throws FileNotFoundException, IOException {
+		ModelAndView model = new ModelAndView ();
+		List<DvoLogs> dvoLogModel = retrieveReportDetails.getReportModelForDvoLogs();
+		model.addObject("jsonObject", dvoLogModel);
+        model.setViewName("dvoLogsResult");
+		return model;
+	}
+	
     /*
      * @RequestMapping(value = "/add", method = RequestMethod.GET) public ModelAndView hi(@RequestParam("date") String date) throws Exception { ModelAndView model = new ModelAndView (); List<ReportModel> reportModel =
      * retrieveReportDetails.getReportModelForTheDate(date);

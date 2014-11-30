@@ -74,7 +74,7 @@ public class ProcessSoap {
         bw.close();
 	}
 	
-	private void processLastLineToDB(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
+	/*private void processLastLineToDB(String lineText, String sessionIDPossition, String year, String fileName) throws IOException {
         if (lineText.startsWith(year) && lineText.endsWith("Envelope>")) {
             String sessionID = null;
             String serviceName = null;
@@ -156,5 +156,5 @@ public class ProcessSoap {
                 }
             }
         }
-    }
+    }*/
 }
