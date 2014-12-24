@@ -160,6 +160,11 @@
 			<artifactId>xmlbeans</artifactId>
 			<version>2.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.8.8</version>
+		</dependency>
 <!-- Dependency jars -->
 	</dependencies>
 	<build>

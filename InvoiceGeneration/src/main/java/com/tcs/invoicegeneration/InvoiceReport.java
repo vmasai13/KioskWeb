@@ -36,6 +36,7 @@ public class InvoiceReport {
 	
 	public static String INVOICE_HOME = System.getenv().get("INVOICE_HOME");
 //	public static String INVOICE_HOME = "C:\\data\\PMO\\KT\\PO Invoice Bill Log\\Invoice Generation Tool\\DVO-Invoices\\ToolWith21%\\invoice-generation";
+	public static final String INPUT_FILE_BILL_LOGS = INVOICE_HOME + "\\Billlog.xls";
 	//public static final String INVOICE_HOME = "D:\\gopal\\tcs\\invoice-generation";
 	public static final String TEMPLATE_FILE = INVOICE_HOME + "\\resources\\report.jrxml";
 	public static final String TEMPLATE_FILE_JUCC = INVOICE_HOME + "\\resources\\TM.jrxml";
@@ -45,8 +46,6 @@ public class InvoiceReport {
 	private static final String WON_JUCC = "2086990";
 	private static final String WON_XF = "XF";
 	
-	public static final String INPUT_FILE_BILL_LOGS = INVOICE_HOME + "\\Bill log V 5.0.xls";
-
 	public static NumToWords numtowords = new NumToWords();
 
 	public static void main(String[] args) {
@@ -57,14 +56,15 @@ public class InvoiceReport {
 		List<InvoiceBean> listInvoiceBeanJUCC = new ArrayList<InvoiceBean>();
 //		readFile(INPUT_FILE, listInvoiceBean, listInvoiceBeanJUCC);
 		BankDetails bankDetails = readBankDetails(INPUT_FILE);
-		readBillLogFile(INPUT_FILE_BILL_LOGS, listInvoiceBean, listInvoiceBeanJUCC, bankDetails);
+		readBillLogFile(INPUT_FILE_BILL_LOGS, listInvoiceBean, listInvoiceBeanJUCC, bankDetails, args[0]);
 		printCellDataToConsole(listInvoiceBean , listInvoiceBeanJUCC);
 		createPdf(TEMPLATE_FILE, OUTPUT_PATH, listInvoiceBean);
 		createJUCCPdf(TEMPLATE_FILE_JUCC, OUTPUT_PATH, listInvoiceBeanJUCC);
 
 	}
 	
-	public static void readBillLogFile(String fileName, List<InvoiceBean> listInvoiceBean, List<InvoiceBean> listInvoiceBeanJUCC, BankDetails bankDetails) {
+	public static void readBillLogFile(String fileName, List<InvoiceBean> listInvoiceBean, 
+			List<InvoiceBean> listInvoiceBeanJUCC, BankDetails bankDetails, String billingType) {
 		System.out.println("Begin reading the bill log file: " + fileName);
 
 		try {
@@ -77,58 +77,78 @@ public class InvoiceReport {
 			NumberFormat f = NumberFormat.getInstance();
 			f.setGroupingUsed(false);
 			
-			System.out.println("Begin reading of DVO logs:"+workBook.getSheetName(1));
-			// Read only DVO bill log sheet for creating DVO invoices
-			for (Row row : workBook.getSheetAt(1)) {
-				if (row.getRowNum() == 0)
-					continue;
-				try {
-					String createStatus = (row.getCell(4) != null) ? row.getCell(4).toString() : "";
-					if(!createStatus.isEmpty() && createStatus.equalsIgnoreCase("Create")) {
-						System.out.println(row.getRowNum());
-						InvoiceBean dataBean = retrieveDVOInovice(f,
-								bankDetails, row);
-						if (dataBean.getProjectType().equals("FP")) {
-							listInvoiceBean.add(dataBean);
-						} else if (dataBean.getProjectType().equals("T&M")) {
-							listInvoiceBeanJUCC.add(dataBean);
+			if(billingType.equalsIgnoreCase("DVO")) {
+				System.out.println("Begin reading of DVO logs:"+workBook.getSheetName(1));
+				// Read only DVO bill log sheet for creating DVO invoices
+				for (Row row : workBook.getSheetAt(1)) {
+					if (row.getRowNum() == 0)
+						continue;
+					try {
+						String createStatus = (row.getCell(4) != null) ? row.getCell(4).toString() : "";
+						String customerInvoiceNumber =  (row.getCell(3) != null) ? row.getCell(3).toString() : "";
+						/* Valid condition:
+							1. customerInvoiceNumber should be present.
+							2. createStatus should be 'Create'*/
+						if(!createStatus.isEmpty() && createStatus.equalsIgnoreCase("Create") && !customerInvoiceNumber.isEmpty()) {
+							// System.out.println(row.getRowNum()); // vijay
+							InvoiceBean dataBean = retrieveDVOInovice(f,
+									bankDetails, row);
+							if (dataBean.getProjectType().equals("FP")) {
+								listInvoiceBean.add(dataBean);
+							} else if (dataBean.getProjectType().equals("T&M")) {
+								listInvoiceBeanJUCC.add(dataBean);
+							}
 						}
+					} catch (Exception e) {
+						System.out.println("Exception occured while processing row no in :" + workBook.getSheetName(1) + " row :"+ row.getRowNum() + ": exception:" + e);
+						e.printStackTrace();
 					}
-				} catch (Exception e) {
-					System.out
-					.println("Exception occured while processing row no."
-							+ row.getRowNum() + ":");
-					e.printStackTrace();
 				}
+
 			}
 
-			/*// Read only PO bill log sheet for creating PO invoices
-			for (Row row : workBook.getSheetAt(0)) {
-				if (row.getRowNum() == 0 || row.getRowNum() == 1)
-					continue;
-				try {
-					InvoiceBean dataBean = retrieveInvoiceDetails(f,
-							bankDetails, row);
-					if (dataBean.getProjectType().equals("FP")) {
-						listInvoiceBean.add(dataBean);
-					} else if (dataBean.getProjectType().equals("T&M")) {
-						listInvoiceBeanJUCC.add(dataBean);
+			if(billingType.equalsIgnoreCase("PO")) {
+				System.out.println("Begin reading of PO logs:"+workBook.getSheetName(0));
+				// Read only PO bill log sheet for creating PO invoices
+				for (Row row : workBook.getSheetAt(0)) {
+					if (row.getRowNum() == 0 || row.getRowNum() == 1)
+						continue;
+					try {
+						// Milestone status
+						String milestoneStatus = (row.getCell(6) != null) ? row.getCell(6).toString() : "";
+						// Invoice status
+						String invoiceStatus = (row.getCell(7) != null) ? row.getCell(7).toString() : "";
+						// KLM Invoice #
+						String customerInvoiceNumber = (row.getCell(4) != null) ? row.getCell(4).toString() : "";
+						/* Valid condition:
+							1. customerInvoiceNumber should be present.
+							2. milestoneStatus should be 'Approved'.
+							3. invoiceStatus should be 'empty' (or) should not be 'Submitted'*/
+						if(!milestoneStatus.isEmpty() && milestoneStatus.equalsIgnoreCase("Approved") && !customerInvoiceNumber.isEmpty()
+								&& (invoiceStatus.equalsIgnoreCase("Create"))) {
+							//							System.out.println("Initial :" + row.getRowNum()); // vijay
+							InvoiceBean dataBean = retrieveBillLogsInovice(f,
+									bankDetails, row);
+							if (!dataBean.getTotalAmount().matches("0.00")) {
+								if (dataBean.getInvoiceType().equals("PO")) {
+									listInvoiceBean.add(dataBean);
+								} else if (dataBean.getInvoiceType().equals("T&M")) {
+									listInvoiceBeanJUCC.add(dataBean);
+								}
+							}
+						}
+					} catch (Exception e) {
+						System.out.println("Exception occured while processing row no in :" + workBook.getSheetName(0) + " row :"+ row.getRowNum() + ": exception:" + e);
+						e.printStackTrace();
 					}
-				} catch (Exception e) {
-					System.out
-					.println("Exception occured while processing row no."
-							+ row.getRowNum() + ":");
-					e.printStackTrace();
 				}
-			}*/
-
-
+			}
 		} catch (InvalidFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("Finished reading the excel file.");
+		System.out.println("Finished reading the excel file.:"+listInvoiceBean.size() + ":"+listInvoiceBeanJUCC.size());
 	}
 	
 	
@@ -214,6 +234,13 @@ public class InvoiceReport {
 		System.out.println("Finished reading the excel file.");
 	}
 	
+	/**
+	 * Method to retrieve DVO invoice bill logs
+	 * @param f
+	 * @param bankDetails
+	 * @param row
+	 * @return
+	 */
 	private static InvoiceBean retrieveDVOInovice(NumberFormat f,
 			BankDetails bankDetails, Row row) {
 		InvoiceBean dvoDataBean = new InvoiceBean();
@@ -278,6 +305,63 @@ public class InvoiceReport {
 		dvoDataBean.setiBANNo(bankDetails.getiBANNo());
 		dvoDataBean.setSwiftCode(bankDetails.getSwiftCode());
 		return dvoDataBean;
+	}
+	
+	private static InvoiceBean retrieveBillLogsInovice(NumberFormat f,
+			BankDetails bankDetails, Row row) {
+		InvoiceBean billLogsDataBean = new InvoiceBean();
+		// WON
+		billLogsDataBean.setWonNumber((row.getCell(1) != null) ? f.format(row
+				.getCell(1).getNumericCellValue()) : "");
+		// TYPE
+		billLogsDataBean.setProjectType((row.getCell(2) != null) ? row.getCell(2)
+				.toString() : "");
+		//Project
+		billLogsDataBean.setProjectName((row.getCell(3) != null) ? row.getCell(3)
+				.toString() : "");
+		// Hard-coded
+		billLogsDataBean.setInvoiceType("PO");
+		// PO #
+		billLogsDataBean.setPONumber(!(row.getCell(8).toString().length() == 0) ? ((row
+				.getCell(8).getCellType() == Cell.CELL_TYPE_STRING) ? row
+				.getCell(8).toString() : f.format(row.getCell(8)
+				.getNumericCellValue())) : "");
+		billLogsDataBean.setReference("PO: " + billLogsDataBean.getPONumber());
+		// Milestone Description
+		billLogsDataBean.setMilestoneDesc((row.getCell(16) != null) ? row.getCell(16)
+				.toString().trim() : "");
+		// Qty
+		billLogsDataBean.setQuantity((row.getCell(11) != null) ? f.format(row.getCell(
+				11).getNumericCellValue()) : "");
+		// Price per Unit
+		billLogsDataBean.setPricePerUnit((row.getCell(12) != null) ? f.format(row.getCell(
+				12).getNumericCellValue()) : "");
+		
+//		billLogsDataBean.setPricePerUnit((row.getCell(12) != null) ? formatCurrency(new BigDecimal(row.getCell(
+//				12).getNumericCellValue())) : "");
+		
+		determineAttentionField(billLogsDataBean);
+		determineReferenceField(f, row, billLogsDataBean);
+
+		//		BigDecimal milestoneValue = !(row.getCell(14).toString().length() == 0) ? new BigDecimal(
+		// row.getCell(14).toString()) : null;
+		BigDecimal milestoneValue = calculateMilestoneValue(billLogsDataBean);
+		if (milestoneValue != null) {
+			determineTotalAmount(bankDetails, billLogsDataBean, milestoneValue);
+		}
+		// Milestone Date
+		billLogsDataBean.setClientInvoiceDate((row.getCell(9) != null) ? row.getCell(
+				9).toString() : "");
+		// KLM Invoice #
+		billLogsDataBean.setCustomerInvoiceNumber((row.getCell(4) != null) ? row
+				.getCell(4).toString() : "");
+		
+		// Setting the bank details
+		billLogsDataBean.setBankAccount(bankDetails.getBankAccount());
+		billLogsDataBean.setBankName(bankDetails.getBankName());
+		billLogsDataBean.setiBANNo(bankDetails.getiBANNo());
+		billLogsDataBean.setSwiftCode(bankDetails.getSwiftCode());
+		return billLogsDataBean;
 	}
 
 	/**
@@ -404,19 +488,14 @@ public class InvoiceReport {
 	 */
 	private static void determineReferenceField(NumberFormat f, Row row,
 			InvoiceBean dataBean) {
-		dataBean.setPONumber(!(row.getCell(9).toString().length() == 0) ? ((row
-				.getCell(9).getCellType() == Cell.CELL_TYPE_STRING) ? row
-				.getCell(9).toString() : f.format(row.getCell(9)
-				.getNumericCellValue())) : "");
-		if (dataBean.getProjectType().equals("FP")) {
-			dataBean.setItem((row.getCell(24) != null) ? f.format(row.getCell(24)
+		// For All "PO" bill logs, we need to have detailed reference
+		if (dataBean.getInvoiceType().equals("PO")) {
+			dataBean.setItem((row.getCell(10) != null) ? f.format(row.getCell(10)
 					.getNumericCellValue()) : "");
-			//dataBean.setPricePerUnit((row.getCell(26) != null) ? f.format(row.getCell(
-			//		26).getNumericCellValue()) : "");
-			dataBean.setReference("PO: " + dataBean.getPONumber() + "/ Item: "
+			dataBean.setReference("PO: " + dataBean.getPONumber() + " / Item: "
 					+ dataBean.getItem() + " / Qty: " + dataBean.getQuantity()
 					+ " / Price Per Unit: " + dataBean.getPricePerUnit() + " EUR");
-		} else if (dataBean.getProjectType().equals("T&M")) {
+		} else if (dataBean.getInvoiceType().equals("T&M")) {
 			dataBean.setReference("PO: " + dataBean.getPONumber());
 		}
 		

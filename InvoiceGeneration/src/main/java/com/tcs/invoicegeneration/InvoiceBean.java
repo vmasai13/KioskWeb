@@ -10,7 +10,7 @@ public class InvoiceBean {
 	private String vat;
 	private String attention;
 	private String reference;
-	private String comment;
+	private String comment = "";
 	private String totalAmount;
 	private String totalAmountInWords;
 	private String bankName;

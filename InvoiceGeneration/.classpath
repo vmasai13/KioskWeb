@@ -3,7 +3,7 @@
   <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
   <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
   <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/batch/spring-batch-test/2.1.8.RELEASE/spring-batch-test-2.1.8.RELEASE.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/batch/spring-batch-core/2.1.8.RELEASE/spring-batch-core-2.1.8.RELEASE.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/batch/spring-batch-infrastructure/2.1.8.RELEASE/spring-batch-infrastructure-2.1.8.RELEASE.jar"/>
@@ -83,8 +83,8 @@
   <classpathentry kind="var" path="M2_REPO/stax/stax-api/1.0.1/stax-api-1.0.1.jar" sourcepath="M2_REPO/stax/stax-api/1.0.1/stax-api-1.0.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-core-lgpl/1.7.4/jackson-core-lgpl-1.7.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-mapper-lgpl/1.7.4/jackson-mapper-lgpl-1.7.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/pdfbox/1.7.1/pdfbox-1.7.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/fontbox/1.7.1/fontbox-1.7.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/jempbox/1.7.1/jempbox-1.7.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/pdfbox/1.8.8/pdfbox-1.8.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/fontbox/1.8.8/fontbox-1.8.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/pdfbox/jempbox/1.8.8/jempbox-1.8.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.5/commons-codec-1.5.jar" sourcepath="M2_REPO/commons-codec/commons-codec/1.5/commons-codec-1.5-sources.jar"/>
 </classpath>
