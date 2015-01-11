@@ -9,6 +9,7 @@ import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardService
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
+import com.mongodb.DBCursor;
 
 @Component
 public interface ReportDetails {
@@ -22,8 +23,12 @@ public interface ReportDetails {
 	List<ServiceDetails> findServiceDetailsForAllKiosk();
 	List<ServiceDetails> findServiceDetailsPerKiosk(String kioskId);
 	List<ServiceDetails> findServiceDetailsNGKKiosks(List<String> kioskIdsList);
-	List<KACServiceDetails> findKacDetailsForAllKiosk();
-	List<KACServiceDetails> findKacDetailsForSelectiveDate(String kacName, String from, String to, String kioskId);
+	// Getting the details for KAC Overview
+	DBCursor findKacDetailsForAllKiosk();
+	// Getting the details for KAC Custom
+	DBCursor findKacDetailsForCustom(String kacNumber, String from, String to, String kioskId);
+	// Getting the details for KAC Data
+	List<KACServiceDetails> findKacDetailsForDataCustom(String kacNumber, String from, String to, String pnrEtkt);
 	
 	// For Creditcard
 	List<CreditcardServiceDetails> findCreditCardServiceDetails(String kioskId, String fromDate, String toDate);

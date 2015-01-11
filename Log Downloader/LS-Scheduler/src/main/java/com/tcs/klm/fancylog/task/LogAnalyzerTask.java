@@ -60,7 +60,6 @@ public class LogAnalyzerTask {
 				String downloadLocation = (String) fancyLogProps.get("downloadLocation");
 				String[] validFilesForDownload = ((String) fancyLogProps.get("validFilesForDownload")).split(",");
 				String noOfDays = (String) fancyLogProps.get("noOfDays");
-				List<String> lstHyeperLink = new ArrayList<String>();
 				APPLICATION_LOGGER.info("trying to loggin Fancylog main page");
 				HttpClient httpClient = FancySharedInfo.getInstance().getAuthenticatedHttpClient(logInURL, userName, passWord);
 
@@ -70,6 +69,7 @@ public class LogAnalyzerTask {
 				    String[] dates = ((String) fancyLogProps.getProperty("downloadDate")).split(",");
 				    for(String date: dates) {
 				    	String logFileURL = null;
+				    	List<String> lstHyeperLink = new ArrayList<String>();
 				        fancyLogURLPattern = fancyLogURLPattern.replace("<host>", host);
 				        fancyLogURLPattern = fancyLogURLPattern.replace("<instance>", instance);
 				        fancyLogURLPattern = fancyLogURLPattern.replace("<applicationName>", applicationName);

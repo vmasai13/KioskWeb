@@ -44,8 +44,9 @@ public class JobLauncherDetails extends QuartzJobBean {
 	
 			try {
 				JobParameters jobParameters = new JobParametersBuilder().addLong("time",System.currentTimeMillis()).toJobParameters();
+				System.out.println("Batch Job Started ...");
 				JobExecution execution = jobLauncher.run(jobLocator.getJob(jobName), jobParameters);
-				System.out.println("Exit Status : " + execution.getStatus());
+				System.out.println("Batch Job " + execution.getStatus() + "!");
 				//execution.stop();
 				
 			} catch (JobExecutionAlreadyRunningException e) {

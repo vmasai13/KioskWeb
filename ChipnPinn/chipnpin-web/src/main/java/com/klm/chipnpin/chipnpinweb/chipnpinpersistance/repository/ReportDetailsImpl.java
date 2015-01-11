@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,6 +21,8 @@ import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.KACServiceDetails
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
 import com.klm.chipnpin.chipnpinweb.util.ChipnpinCommonUtil;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 
 
 @Repository
@@ -79,10 +82,115 @@ public class ReportDetailsImpl implements ReportDetails{
 		return mongoTemplate.find(query, ServiceDetails.class);
 	}
 
+	/* (non-Javadoc)
+	 * Getting the details for KAC Overview
+	 * @see com.klm.chipnpin.chipnpinweb.chipnpinpersistance.repository.ReportDetails#findKacDetailsForAllKiosk()
+	 */
 	@Override
-	public List<KACServiceDetails> findKacDetailsForAllKiosk() {
-		List<KACServiceDetails> serviceDetails = mongoTemplate.findAll(KACServiceDetails.class);
-		return Collections.unmodifiableList(serviceDetails);
+	public DBCursor findKacDetailsForAllKiosk() {
+		DBCollection kacServiceDetailsCollection = mongoTemplate.getCollection("kACServiceDetails");
+		DBCursor cursor = kacServiceDetailsCollection.find();
+		return cursor;
+	}
+	
+	/* (non-Javadoc)
+	 * Getting the details for KAC Custom
+	 * @see com.klm.chipnpin.chipnpinweb.chipnpinpersistance.repository.ReportDetails#findKacDetailsForCustom(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public DBCursor findKacDetailsForCustom(String kacNumber, String from, String to, String kioskId) {
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+		DBCursor cursor = null;
+		Date dateFrom = null;
+		Date dateTo = null;
+		try {
+			dateFrom = formatter.parse(from);
+			dateTo = formatter.parse(to);
+			dateTo = new Date(dateTo.getTime() + (1000 * 60 * 60 * 24));
+			System.out.println("dateFrom: "+dateFrom);
+			System.out.println("dateTo: "+dateTo);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		BasicDBObject queryObject = new BasicDBObject();
+		
+		if (null != dateFrom && null != dateTo) {
+			queryObject.put("serviceDetails.date", new BasicDBObject("$gt", dateFrom).append("$lt", dateTo));
+			if (!kacNumber.isEmpty() && !kioskId.isEmpty()) {
+//				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacNumber).and("serviceDetails.kioskId").regex(kioskId));
+				queryObject.put("serviceDetails.kioskId", kioskId);
+				queryObject.put("kacNumber", kacNumber);
+			} 
+			if (!kioskId.isEmpty() && kacNumber.isEmpty()) {
+//				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("serviceDetails.kioskId").regex(kioskId));
+				queryObject.put("serviceDetails.kioskId", kioskId);
+			}
+			if (kioskId.isEmpty() && !kacNumber.isEmpty()) {
+				queryObject.put("kacNumber", kacNumber);
+//				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacNumber));
+			}
+		}
+		if(queryObject.size() > 0) {
+//			kacServicedetails = mongoTemplate.find(query, KACServiceDetails.class); // old query
+			DBCollection kacServiceDetailsCollection = mongoTemplate.getCollection("kACServiceDetails");
+			cursor = (DBCursor) kacServiceDetailsCollection.find(queryObject);
+		}
+		return cursor;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * Getting the details for KAC Data Custom
+	 * @see com.klm.chipnpin.chipnpinweb.chipnpinpersistance.repository.ReportDetails#findKacDetailsForCustom(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<KACServiceDetails> findKacDetailsForDataCustom(String kacNumber, String from, String to, String pnrEtkt) {
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date dateFrom = null;
+		Date dateTo = null;
+		Query query = null;
+		List<KACServiceDetails> kacServicedetails = null;
+		try {
+			dateFrom = formatter.parse(from);
+			dateTo = formatter.parse(to);
+			dateTo = new Date(dateTo.getTime() + (1000 * 60 * 60 * 24));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		if (null != dateFrom && null != dateTo) {
+			query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo));
+			if (!kacNumber.isEmpty() && !pnrEtkt.isEmpty()) {
+				if(pnrEtkt.length() > 6) {
+					query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacNumber).and("serviceDetails.eticket").regex(pnrEtkt));
+				} else {
+					query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacNumber).and("serviceDetails.pnr").regex(pnrEtkt));
+				}
+			} 
+			if (!pnrEtkt.isEmpty() && kacNumber.isEmpty()) {
+				// queryObject.put("title", new BasicDBObject("$regex", pnrEtkt)); - For regular expression
+				if(pnrEtkt.length() > 6) {
+					query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("serviceDetails.eticket").regex(pnrEtkt));
+				} else {
+					query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("serviceDetails.pnr").regex(pnrEtkt));
+				}
+			}
+			if (pnrEtkt.isEmpty() && !kacNumber.isEmpty()) {
+				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacNumber));
+			}
+		}
+		if(null != query) {
+			kacServicedetails = mongoTemplate.find(query, KACServiceDetails.class);
+		} /*else {
+			kacServicedetails = mongoTemplate.findAll(KACServiceDetails.class, "kACServiceDetails");
+		}*/
+		
+		return kacServicedetails;
 	}
 	
 	// For getting the bill logs from DB
@@ -99,39 +207,6 @@ public class ReportDetailsImpl implements ReportDetails{
 		return Collections.unmodifiableList(dvoLogDetails);
 	}
 
-	@Override
-	public List<KACServiceDetails> findKacDetailsForSelectiveDate(String kacName, String from, String to, String kioskId) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-		List<KACServiceDetails> kacServicedetails = null;
-		Query query = null;
-		Date dateFrom = null;
-		Date dateTo = null;
-		try {
-			dateFrom = formatter.parse(from);
-			dateTo = formatter.parse(to);
-			System.out.println("dateFrom: "+dateFrom);
-			System.out.println("dateTo: "+dateTo);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (null != dateFrom && null != dateTo) {
-			if (!kacName.isEmpty() && !kioskId.isEmpty()) {
-				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacName).and("serviceDetails.kioskId").regex(kioskId));
-			} 
-			if (!kioskId.isEmpty() && kacName.isEmpty()) {
-				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("serviceDetails.kioskId").regex(kioskId));
-			}
-			if (kioskId.isEmpty() && !kacName.isEmpty()) {
-				query = new Query(Criteria.where("serviceDetails.date").gte(dateFrom).lte(dateTo).and("kacNumber").is(kacName));
-			}
-			
-		}
-		if(null != query)
-			kacServicedetails = mongoTemplate.find(query, KACServiceDetails.class);;
-		return kacServicedetails;
-	}
-	
 	/* 
 	 * Getting credit card details
 	 * (non-Javadoc)

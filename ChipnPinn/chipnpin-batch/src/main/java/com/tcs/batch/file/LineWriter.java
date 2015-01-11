@@ -9,20 +9,19 @@ import com.klm.chipnpin.chipnpinpersistance.domain.KACServiceDetails;
 import com.klm.chipnpin.chipnpinpersistance.domain.ServiceDetails;
 import com.klm.chipnpin.chipnpinpersistance.repository.ReportDetails;
 
-public class LineWriter implements ItemWriter<Object> {
+public class LineWriter implements ItemWriter<ServiceDetails> {
 
 	@Autowired
 	ReportDetails reportDetails;
 	
-	public void write(List<? extends Object> details) throws Exception {
+	public void write(List<? extends ServiceDetails> details) throws Exception {
 		
 		if (details.size()>0) {
 			for (Object detail : details) {
 				// saveOrUpdateRecord(serviceDetail);
 				if (null != detail && detail instanceof KACServiceDetails) {
 					saveOrUpdateServiceKACInformation((KACServiceDetails)detail);
-				}
-				if (null != detail && detail instanceof ServiceDetails) {
+				}else if (null != detail && detail instanceof ServiceDetails) {
 					saveOrUpdateServiceInformation((ServiceDetails) detail);
 				}
 			}

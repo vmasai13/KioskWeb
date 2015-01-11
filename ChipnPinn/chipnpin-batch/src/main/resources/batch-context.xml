@@ -45,14 +45,24 @@
 	</batch:job> -->
 	
 	<job id="importLogs" xmlns="http://www.springframework.org/schema/batch">
+		<!-- <batch:decision decider="decider" id="decider">
+		    <batch:next on="CONTINUABLE" to="readWriteLogs" />
+		    <batch:end on="FINISHED" />
+	  	</batch:decision> -->
 		<step id="readWriteLogs">
 			<tasklet>
-				<chunk reader="multiLineReaderDelegate" processor="recordProcessor" writer="lineWriter"
-					commit-interval="10" />
+				<chunk reader="multiResReader" processor="recordProcessor" writer="lineWriter"
+					commit-interval="2" >
+				</chunk>
 			</tasklet>
 		</step>
 	</job>
 	
+	
+	<!-- <bean id="decider" class="MyDecider">
+  		<property name="resourceHolderBean" ref="resourceHolderBean" />
+	</bean> -->
+	<!-- 
 	<job id="importSoapLogs" xmlns="http://www.springframework.org/schema/batch">
 		<step id="readSoapWriteLogs">
 			<tasklet>
@@ -61,28 +71,33 @@
 			</tasklet>
 		</step>
 	</job>
-		
-	<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step">
-		<property name="resources" value="file:C:/data/download/07/data*webkiosk_technical.*" />
-											   
-		<!-- <property name="resources" value="file:D:/chipnpin/tech/15mar/*.*" /> -->
+		<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step"> -->
+	<!-- <bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader">
+		<property name="resources" value="file:C:/data/download/04/data*webkiosk_technical.*" />
+		<property name="resources" value="file:C:/data/download/test/data*webkiosk_technical.*" />						   
+		<property name="delegate" ref="delegateMultiLineReader" />
+		<property name="delegate" ref="multilineReader" />
+		<property name="strict" value="true" />
+	</bean> -->
+
+	<bean id="multiResReader" class="com.tcs.batch.file.MultiResReader"
+		scope="step">
+		<!-- <property name="resources" value="file:C:/data/download/test/data*webkiosk_technical.*" /> --> <!-- For Testing purpose		 -->
+		<property name="resources" value="file:C:/data/download/03/data*webkiosk_technical.*" />
 		<property name="delegate" ref="delegateMultiLineReader" />
 		<property name="strict" value="true" />
+		<property name="resourceHolderBean" ref="resourceHolderBean"></property>
 	</bean>
-
+	
 	<!-- run every 10 seconds -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 				<property name="jobDetail" ref="jobDetail" />
-				<property name="cronExpression" value="0 16 18 ? * *" /><!-- 
+				<property name="cronExpression" value="0 27 00 ? * *" /><!-- 
 					vijay value="second minute hour ? * *" -->
 			</bean>
 		</property>
-	</bean>
-	
-	<bean id="multilineReader" class="com.tcs.batch.file.MultiLineReader">
-		<property name="delegate" ref="delegateMultiLineReader" />
 	</bean>
 	
 	<bean id="delegateMultiLineReader" class="org.springframework.batch.item.file.FlatFileItemReader">
@@ -92,19 +107,23 @@
 		</property>
 	</bean>
 	
-	<bean id="recordProcessor" class="com.tcs.batch.file.RecordProcessor" />
+	<bean id="resourceHolderBean" class="com.tcs.batch.file.ResourceHolderBean" />
+	<bean id="recordProcessor" class="com.tcs.batch.file.RecordProcessor">
+		<property name="resourceHolderBean" ref="resourceHolderBean" />
+	</bean>
+	
 	<bean id="lineWriter" class="com.tcs.batch.file.LineWriter" />
 	<bean id="recordProcessorCreditCard" class="com.tcs.batch.file.CreditCardRecordProcessor" />
 	<bean id="lineWriterCreditCard" class="com.tcs.batch.file.CreditCardLineWriter" />
 	<!-- run every 10 seconds -->
-  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+  <!-- <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	<property name="triggers">
 	  <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="jobDetail" />
 		<property name="cronExpression" value="0 24 11 ? * *" />
 	  </bean>
 	</property>
-  </bean>
+  </bean> -->
  
   <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
 	<property name="jobClass" value="com.tcs.batch.file.JobLauncherDetails" />

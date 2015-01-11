@@ -11,36 +11,69 @@ public class ServiceDetails {
 	@Id
 	private String id;
 	private Date date;
+	private String dateStr;
 	private String sessionId;
 	private String kioskId;
+	private String pnr;
+	private String eticket;
 	private String view;
 	private String key;
 	private String responseCode;
 	private String responseError;
+	private String nodeInstance;
+	
+	
+	public String getDateStr() {
+		return dateStr;
+	}
+
+	public void setDateStr(String dateStr) {
+		this.dateStr = dateStr;
+	}
+
+	public String getPnr() {
+		return pnr;
+	}
+
+	public void setPnr(String pnr) {
+		this.pnr = pnr;
+	}
+
+	public String getEticket() {
+		return eticket;
+	}
+
+	public void setEticket(String eticket) {
+		this.eticket = eticket;
+	}
+
+	public String getNodeInstance() {
+		return nodeInstance;
+	}
+
+	public void setNodeInstance(String nodeInstance) {
+		this.nodeInstance = nodeInstance;
+	}
+
 	public String getId() {
 		return id;
 	}
-	
 	
 	public String getResponseCode() {
 		return responseCode;
 	}
 
-
 	public void setResponseCode(String responseCode) {
 		this.responseCode = responseCode;
 	}
-
 
 	public String getResponseError() {
 		return responseError;
 	}
 
-
 	public void setResponseError(String responseError) {
 		this.responseError = responseError;
 	}
-
 
 	public void setId(String id) {
 		this.id = id;

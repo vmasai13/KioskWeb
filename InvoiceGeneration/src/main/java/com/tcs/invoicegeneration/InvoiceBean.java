@@ -1,11 +1,14 @@
 package com.tcs.invoicegeneration;
 
+import java.util.Date;
+
 public class InvoiceBean {
 	private String wonNumber;
 	private String projectName;
 	private String milestoneDesc;
 	private String milestoneValue;
 	private String clientInvoiceDate;
+	private Date clientInvoiceDateinDate;
 	private String customerInvoiceNumber;
 	private String vat;
 	private String attention;
@@ -28,8 +31,27 @@ public class InvoiceBean {
 	private String units;
 	private String projectType;
 	private String invoiceType;
+	private boolean isAlreadyProcessed = false;
 	
-
+	
+	public String getClientInvoiceDate() {
+		return clientInvoiceDate;
+	}
+	public void setClientInvoiceDate(String clientInvoiceDate) {
+		this.clientInvoiceDate = clientInvoiceDate;
+	}
+	public Date getClientInvoiceDateinDate() {
+		return clientInvoiceDateinDate;
+	}
+	public void setClientInvoiceDateinDate(Date clientInvoiceDateinDate) {
+		this.clientInvoiceDateinDate = clientInvoiceDateinDate;
+	}
+	public boolean isAlreadyProcessed() {
+		return isAlreadyProcessed;
+	}
+	public void setAlreadyProcessed(boolean isAlreadyProcessed) {
+		this.isAlreadyProcessed = isAlreadyProcessed;
+	}
 	public String getInvoiceType() {
 		return invoiceType;
 	}
@@ -180,12 +202,12 @@ public class InvoiceBean {
 	public void setMilestoneValue(String milestoneValue) {
 		this.milestoneValue = milestoneValue;
 	}
-	public String getClientInvoiceDate() {
+	/*public Date getClientInvoiceDate() {
 		return clientInvoiceDate;
 	}
-	public void setClientInvoiceDate(String clientInvoiceDate) {
+	public void setClientInvoiceDate(Date clientInvoiceDate) {
 		this.clientInvoiceDate = clientInvoiceDate;
-	}
+	}*/
 	public String getCustomerInvoiceNumber() {
 		return customerInvoiceNumber;
 	}

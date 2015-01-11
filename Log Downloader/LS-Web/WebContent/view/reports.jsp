@@ -386,7 +386,6 @@
                         autoGridCount: true,
                         graph: "g1"
                     },
-
                     mouseWheelZoomEnabled:true,
                     legend: {
                     	position:"right",

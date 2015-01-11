@@ -276,7 +276,9 @@ public class InvoiceReport {
 		
 		// Milestone date
 		dvoDataBean.setClientInvoiceDate((row.getCell(6) != null) ? row.getCell(
-				6).toString() : "");
+				6).toString() : null);
+		/*dvoDataBean.setClientInvoiceDateinString((row.getCell(6) != null) ? row.getCell(
+				6).getDateCellValue() : null);*/
 		// Invoice #
 		dvoDataBean.setCustomerInvoiceNumber((row.getCell(3) != null) ? row
 				.getCell(3).toString() : "");
@@ -351,7 +353,9 @@ public class InvoiceReport {
 		}
 		// Milestone Date
 		billLogsDataBean.setClientInvoiceDate((row.getCell(9) != null) ? row.getCell(
-				9).toString() : "");
+				9).toString() : null);
+		/*billLogsDataBean.setClientInvoiceDateinString((row.getCell(9) != null) ? row.getCell(
+				9).toString() : null);*/
 		// KLM Invoice #
 		billLogsDataBean.setCustomerInvoiceNumber((row.getCell(4) != null) ? row
 				.getCell(4).toString() : "");
@@ -404,8 +408,8 @@ public class InvoiceReport {
 
 		determineReferenceField(f, row, dataBean);
 
-		dataBean.setClientInvoiceDate((row.getCell(16) != null) ? row.getCell(
-				16).toString() : "");
+		/*dataBean.setClientInvoiceDate((row.getCell(16) != null) ? row.getCell(
+				16).getDateCellValue() : null);*/
 		dataBean.setCustomerInvoiceNumber((row.getCell(17) != null) ? row
 				.getCell(17).toString() : "");
 		dataBean.setComment((row.getCell(27) != null) ? row.getCell(27)

@@ -6,6 +6,7 @@ public class ReportModel {
 
 	private Date date;
 	private Date reportDate;
+	private String reportDateStr;
 	private String sessionId;
 	private String kioskId;
 	private String view;
@@ -16,7 +17,12 @@ public class ReportModel {
 	private int countSuccess;
 	
 	
-	
+	public String getReportDateStr() {
+		return reportDateStr;
+	}
+	public void setReportDateStr(String reportDateStr) {
+		this.reportDateStr = reportDateStr;
+	}
 	public String getKacNumber() {
 		return kacNumber;
 	}

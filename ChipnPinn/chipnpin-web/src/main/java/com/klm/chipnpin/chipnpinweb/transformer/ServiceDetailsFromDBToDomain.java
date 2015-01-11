@@ -20,6 +20,7 @@ public class ServiceDetailsFromDBToDomain {
 		for (ServiceDetails serDetailsToConvert : serviceDetailsFromDB) {
 			ReportModel  details = new ReportModel();
 			details.setDate(serDetailsToConvert.getDate());
+			details.setReportDateStr(serDetailsToConvert.getDateStr());
 			details.setKey(serDetailsToConvert.getKey());
 			details.setKioskId(serDetailsToConvert.getKioskId());
 			details.setResponseCode(serDetailsToConvert.getResponseCode());
@@ -45,22 +46,4 @@ public class ServiceDetailsFromDBToDomain {
 		}
 		return serviceDetailsDomainList;	
 	}
-
-	public List<KacReportModel> convertToKacReportDomain(List<KACServiceDetails> serviceDetailsFromDB) {
-		List<KacReportModel> kacReportModelList = new ArrayList<KacReportModel>();
-		for (KACServiceDetails kacServiceDetails : serviceDetailsFromDB) {
-			KacReportModel kacServiceDetail = new KacReportModel();
-			ReportModel reportModel = new ReportModel();
-			reportModel.setDate(kacServiceDetails.getServiceDetails().getDate());
-			reportModel.setKey(kacServiceDetails.getServiceDetails().getKey());
-			reportModel.setKioskId(kacServiceDetails.getServiceDetails().getKioskId());
-			reportModel.setSessionId(kacServiceDetails.getServiceDetails().getSessionId());
-			kacServiceDetail.setKacNumber(kacServiceDetails.getKacNumber());
-			kacServiceDetail.setPnr(kacServiceDetails.getPnr());
-			kacServiceDetail.setReportModel(reportModel);	
-			kacReportModelList.add(kacServiceDetail);
-		}
-		return kacReportModelList;
-	}
-
 }

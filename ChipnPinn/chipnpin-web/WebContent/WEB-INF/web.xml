@@ -36,5 +36,4 @@
 		<url-pattern>/kacResult</url-pattern>
 		<url-pattern>/amsKiosks</url-pattern> -->
 	</servlet-mapping>
-
 </web-app>

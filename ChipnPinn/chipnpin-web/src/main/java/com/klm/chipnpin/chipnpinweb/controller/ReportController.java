@@ -20,25 +20,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
-import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
 import com.klm.chipnpin.chipnpinweb.model.CreditCardReportModel;
-import com.klm.chipnpin.chipnpinweb.model.KacReportModel;
 import com.klm.chipnpin.chipnpinweb.model.ReportModel;
 import com.klm.chipnpin.chipnpinweb.services.RetrieveReportDetails;
-import com.klm.chipnpin.chipnpinweb.util.ChipnpinCommonUtil;
+import com.klm.chipnpin.chipnpinweb.util.ChipnPinResources;
 import com.klm.chipnpin.chipnpinweb.util.ChipnpinConstant;
-import com.klm.chipnpin.chipnpinweb.util.ConfigurableResources;
 
 @Controller
 public class ReportController {
 	
-	public static String kioskId_Properties = "C:/develop/code/Reporting/cassandrabatchici/src/main/resources/kioskids.properties";
     @Autowired
     RetrieveReportDetails retrieveReportDetails;
     // For getting the resources from property file
     @Autowired
-    ConfigurableResources configurableResources;
+    ChipnPinResources chipnPinResources;
     
     @RequestMapping("/home")
     public String mainReport() {
@@ -53,34 +48,7 @@ public class ReportController {
      * 
      * }
      */
-    @RequestMapping("/findKac")
-    public ModelAndView findKac(@RequestParam("kacName")
-    String kacName, @RequestParam("kioskId")
-    String kioskId, @RequestParam("from")
-    String from, @RequestParam("to")
-    String to) {
-        System.out.println("kacName :" + kacName);
-        System.out.println("from :" + from);
-        System.out.println("to :" + to);
-        ModelAndView model = new ModelAndView();
-        List<KacReportModel> reportModel = retrieveReportDetails.getKacReportModelForSelectiveDate(kacName, from, to, kioskId);
-        // model = filterKacResponseStatus(reportModel, model);
-        // model.setViewName("kacResult");
-        model.addObject("jsonObject", reportModel);
-        model.setViewName("kacResultTable");
-        return model;
-    }
-
-    @RequestMapping("/kacResult")
-    public ModelAndView kacResult() throws Exception {
-        ModelAndView model = new ModelAndView();
-        List<KacReportModel> reportModel = retrieveReportDetails.getKacReportModelForAllKiosk();
-        model = filterKacResponseStatus(reportModel, model);
-        model.setViewName("kacResult");
-        return model;
-    }
-
-    private ModelAndView filterKacResponseStatus(List<KacReportModel> reportModel, ModelAndView model) {
+    /*private ModelAndView filterKacResponseStatus(List<KacReportModel> reportModel, ModelAndView model) {
         Date dateInString;
         Set<Date> dates = new HashSet<Date>();
         Iterator<KacReportModel> reports = reportModel.iterator();
@@ -109,7 +77,7 @@ public class ReportController {
         }
         model.addObject("jsonObject", responseMap);
         return model;
-    }
+    }*/
 
     /**
      * Controller for Credit card customized search
@@ -127,10 +95,10 @@ public class ReportController {
         ModelAndView model = new ModelAndView();
      // Setting the configurable date, if "From" (or) "To" Date is empty
     	if(fromDate.isEmpty()) {
-    		fromDate = configurableResources.getDefaultFromDate();
+    		fromDate = chipnPinResources.getDefaultFromDate();
     	}
     	if (toDate.isEmpty()) {
-    		toDate = configurableResources.getDefaultToDate();
+    		toDate = chipnPinResources.getDefaultToDate();
     	}
         List<CreditCardReportModel> reportModel = retrieveReportDetails.getCreditCardReportModelForAllKiosk(kioskId.trim(), fromDate, toDate);
         model.addObject("jsonObject", reportModel);
@@ -147,8 +115,8 @@ public class ReportController {
     public ModelAndView CreditCardSwipeOverview() throws Exception {
         ModelAndView model = new ModelAndView();
         // Setting the configurable date, if "From" (or) "To" Date is empty
-		String fromDate = configurableResources.getDefaultFromDate();
-		String toDate = configurableResources.getDefaultToDate();
+		String fromDate = chipnPinResources.getDefaultFromDate();
+		String toDate = chipnPinResources.getDefaultToDate();
         List<CreditCardReportModel> reportModel = retrieveReportDetails.getCreditCardReportModelForAllKiosk("", fromDate, toDate);
         createCreditCardResultModel(reportModel, model, fromDate);
         // reference - kacResultTable
@@ -171,7 +139,7 @@ public class ReportController {
      * 
      * } return outputModelList; }
      */
-    @RequestMapping("/StatisticsAMSorCDG")
+    /*@RequestMapping("/StatisticsAMSorCDG")
     public ModelAndView StatisticsAMSorCDG(@RequestParam("station")
     String station) throws FileNotFoundException, IOException {
         ModelAndView model = new ModelAndView();
@@ -194,7 +162,7 @@ public class ReportController {
         model = filterResponseStatus(reportModel, model);
         model.setViewName("result");
         return model;
-    }
+    }*/
 
     @RequestMapping("/compareNGK")
     public ModelAndView compareNGKAndBLSCDG() throws FileNotFoundException, IOException {
@@ -231,24 +199,14 @@ public class ReportController {
         return model;
     }
 
-    @RequestMapping("/perKiosk")
-    public ModelAndView perKiosk(@RequestParam("name")
-    String kioskId) {
-        ModelAndView model = new ModelAndView();
-        List<ReportModel> reportModel = retrieveReportDetails.getReportModelperKiosk(kioskId);
-        model = filterResponseStatus(reportModel, model);
-        model.setViewName("result");
-        return model;
-    }
-
-    @RequestMapping("/result")
+/*    @RequestMapping("/result")
     public ModelAndView result() throws Exception {
         ModelAndView model = new ModelAndView();
         List<ReportModel> reportModel = retrieveReportDetails.getReportModelForAllKiosk();
         model = filterResponseStatus(reportModel, model);
         model.setViewName("result");
         return model;
-    }
+    }*/
 
     @RequestMapping("/errorCodes")
     public ModelAndView errorCodes() throws Exception {
@@ -360,147 +318,6 @@ public class ReportController {
     	return model;
     }
 
-    private ModelAndView filterResponseStatus(List<ReportModel> reportModel, ModelAndView model) {
-        Date dateInString;
-        Set<Date> dates = new HashSet<Date>();
-        Iterator<ReportModel> reports = reportModel.iterator();
-        while (reports.hasNext()) {
-            ReportModel report = (ReportModel) reports.next();
-            dateInString = report.getDate();
-            report.setDate(dateInString);
-            dates.add(report.getDate());
-        }
-        Map<String, List<Integer>> responseMap = new HashMap<String, List<Integer>>();
-        Iterator<Date> dateItr = dates.iterator();
-        while (dateItr.hasNext()) {
-            List<Integer> counters = new ArrayList<Integer>();
-            int countSuccess = 0;
-            int errorCount0311 = 0;
-            int errorCount0310 = 0;
-            int errorCount0110 = 0;
-            int errorCount0100 = 0;
-            int totalAttempts = 0;
-            Date date = (Date) dateItr.next();
-            for (ReportModel report : reportModel) {
-                if (date.equals(report.getDate()) && report.getResponseCode().equals("0000")) {
-                    countSuccess++;
-                }
-                if (date.equals(report.getDate()) && report.getResponseCode().equals("0311")) {
-                    errorCount0311++;
-                }
-                if (date.equals(report.getDate()) && (report.getResponseCode().equals("0310") || report.getResponseCode().equals("null"))) {
-                    errorCount0310++;
-                }
-                if (date.equals(report.getDate()) && (report.getResponseCode().equals("0100"))) {
-                    errorCount0100++;
-                }
-                if (date.equals(report.getDate()) && (report.getResponseCode().equals("0110"))) {
-                    errorCount0110++;
-                }
-                if (date.equals(report.getDate())) {
-                    totalAttempts++;
-                }
-            }
-            counters.add(countSuccess);
-            counters.add(errorCount0311);
-            counters.add(errorCount0310);
-            counters.add(errorCount0100);
-            counters.add(errorCount0110);
-            counters.add(totalAttempts);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            String dateToGraph = calendar.get(Calendar.YEAR) + ", " + calendar.get(Calendar.MONTH) + ", " + calendar.get(Calendar.DAY_OF_MONTH);
-            responseMap.put(dateToGraph, counters);
-        }
-        model.addObject("jsonObject", responseMap);
-        return model;
-    }
-@RequestMapping("/kioskIdsNGKSeries0")
-	public ModelAndView statisticsOFNGKKiosk() throws FileNotFoundException, IOException {
-		List<String> kioskIdsList = new ArrayList<String>();
-		Properties props = new Properties();
-		props.load(new FileInputStream(kioskId_Properties));
-		String kioskIds = props.getProperty("kioskIdsNGKSeries0");
-		String[] result = kioskIds.split(",");
-		for (int x = 0; x < result.length; x++) {
-			kioskIdsList.add(result[x]);
-		}
-		ModelAndView model = new ModelAndView ();
-		List<ReportModel> reportModel = retrieveReportDetails.getReportModelForNGKKiosks(kioskIdsList);
-		model = filterResponseStatus(reportModel, model);
-		model.setViewName("result");
-		return model;
-	}
-	
-	@RequestMapping("/kioskIdsNGKSeries1")
-	public ModelAndView kioskIdsNGKSeries1() throws FileNotFoundException, IOException {
-		List<String> kioskIdsList = new ArrayList<String>();
-		Properties props = new Properties();
-		props.load(new FileInputStream(kioskId_Properties));
-		String kioskIds = props.getProperty("kioskIdsNGKSeries1");
-		String[] result = kioskIds.split(",");
-		for (int x = 0; x < result.length; x++) {
-			kioskIdsList.add(result[x]);
-		}
-		ModelAndView model = new ModelAndView ();
-		List<ReportModel> reportModel = retrieveReportDetails.getReportModelForNGKKiosks(kioskIdsList);
-		model = filterResponseStatus(reportModel, model);
-		model.setViewName("result");
-		return model;
-	}
-	
-	@RequestMapping("/kioskIdsNGKSeries1_AMS")
-	public ModelAndView kioskIdsNGKSeries1_AMS() throws FileNotFoundException, IOException {
-		List<String> kioskIdsList = new ArrayList<String>();
-		Properties props = new Properties();
-		props.load(new FileInputStream(kioskId_Properties));
-		String kioskIds = props.getProperty("kioskIdsNGKSeries1_AMS");
-		String[] result = kioskIds.split(",");
-		for (int x = 0; x < result.length; x++) {
-			kioskIdsList.add(result[x]);
-		}
-		ModelAndView model = new ModelAndView ();
-		List<ReportModel> reportModel = retrieveReportDetails.getReportModelForNGKKiosks(kioskIdsList);
-		model = filterResponseStatus(reportModel, model);
-		model.setViewName("result");
-		return model;
-	}
-	
-	@RequestMapping("/kioskIdsNGKSeries1_CDG")
-	public ModelAndView kioskIdsNGKSeries1_CDG() throws FileNotFoundException, IOException {
-		List<String> kioskIdsList = new ArrayList<String>();
-		Properties props = new Properties();
-		props.load(new FileInputStream(kioskId_Properties));
-		String kioskIds = props.getProperty("kioskIdsNGKSeries1_CDG");
-		String[] result = kioskIds.split(",");
-		for (int x = 0; x < result.length; x++) {
-			kioskIdsList.add(result[x]);
-		}
-		ModelAndView model = new ModelAndView ();
-		List<ReportModel> reportModel = retrieveReportDetails.getReportModelForNGKKiosks(kioskIdsList);
-		model = filterResponseStatus(reportModel, model);
-		model.setViewName("result");
-		return model;
-	}
-	
-	@RequestMapping("/billLogs")
-	public ModelAndView billLogsResult() throws FileNotFoundException, IOException {
-		ModelAndView model = new ModelAndView ();
-		List<BillLogs> billLogModel = retrieveReportDetails.getReportModelForBillLogs();
-		model.addObject("jsonObject", billLogModel);
-        model.setViewName("billLogsResult");
-		return model;
-	}
-	
-	@RequestMapping("/dvoLogs") //vijay
-	public ModelAndView dvoLogsResult() throws FileNotFoundException, IOException {
-		ModelAndView model = new ModelAndView ();
-		List<DvoLogs> dvoLogModel = retrieveReportDetails.getReportModelForDvoLogs();
-		model.addObject("jsonObject", dvoLogModel);
-        model.setViewName("dvoLogsResult");
-		return model;
-	}
-	
     /*
      * @RequestMapping(value = "/add", method = RequestMethod.GET) public ModelAndView hi(@RequestParam("date") String date) throws Exception { ModelAndView model = new ModelAndView (); List<ReportModel> reportModel =
      * retrieveReportDetails.getReportModelForTheDate(date);
