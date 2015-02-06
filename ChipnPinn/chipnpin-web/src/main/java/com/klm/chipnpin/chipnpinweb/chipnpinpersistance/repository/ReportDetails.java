@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.klm.chipnpin.chipnpinpersistance.domain.LogBean;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
@@ -36,4 +37,6 @@ public interface ReportDetails {
 	List<BillLogs> getReportModelForBillLogs();
 	// For DvoLogs
 	List<DvoLogs> getReportModelForDvoLogs();
+	// Getting the details for performance check
+	DBCursor getPrefCheckDetails();
 }

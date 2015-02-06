@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.klm.chipnpin.chipnpinweb.model.CommonKioskData;
 import com.klm.chipnpin.chipnpinweb.model.CreditCardReportModel;
 import com.klm.chipnpin.chipnpinweb.model.ReportModel;
 import com.klm.chipnpin.chipnpinweb.services.RetrieveReportDetails;
@@ -40,45 +41,22 @@ public class ReportController {
         return "kioskMetricsHome";
     }
 
-    /*
-     * @RequestMapping("/amsKiosks") public ModelAndView kioskAMS_IBM_Statistics() throws FileNotFoundException, IOException { ModelAndView model = new ModelAndView (); Properties prop = new Properties(); prop.load(new
-     * FileInputStream("D:\\chip n pin\\cassandrabatchici\\cassandrabatchici\\src\\main\\resources\\kioskids.properties"));
-     * 
-     * return model;
-     * 
-     * }
-     */
-    /*private ModelAndView filterKacResponseStatus(List<KacReportModel> reportModel, ModelAndView model) {
-        Date dateInString;
-        Set<Date> dates = new HashSet<Date>();
-        Iterator<KacReportModel> reports = reportModel.iterator();
-        while (reports.hasNext()) {
-            KacReportModel report = (KacReportModel) reports.next();
-            dateInString = report.getReportModel().getDate();
-            report.setDate(dateInString);
-            dates.add(report.getReportModel().getDate());
-        }
-        Map<String, List<Integer>> responseMap = new HashMap<String, List<Integer>>();
-        Iterator<Date> dateItr = dates.iterator();
-        while (dateItr.hasNext()) {
-            List<Integer> counters = new ArrayList<Integer>();
-            int KacCount = 0;
-            Date date = (Date) dateItr.next();
-            for (KacReportModel report : reportModel) {
-                if (date.equals(report.getReportModel().getDate())) {
-                    KacCount++;
-                }
-            }
-            counters.add(KacCount);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            String dateToGraph = calendar.get(Calendar.YEAR) + ", " + calendar.get(Calendar.MONTH) + ", " + calendar.get(Calendar.DAY_OF_MONTH);
-            responseMap.put(dateToGraph, counters);
-        }
-        model.addObject("jsonObject", responseMap);
-        return model;
-    }*/
-
+	@RequestMapping("/load") // vijay
+	public ModelAndView initializeKiosk() throws FileNotFoundException, IOException {
+		ModelAndView model = new ModelAndView();
+		CommonKioskData commonKioskData = new CommonKioskData();
+		commonKioskData.setUseAppletMock("false");
+		commonKioskData.setKioskId("KAMST001");
+		commonKioskData.setTpvNumber("12345");
+		commonKioskData.setDefaultLanguage("en");
+		commonKioskData.setHostId("KL");
+		// http://localhost:8085/webkiosk/start.html?kioskId=ORY3NGK001&appletSim=true&hostId=KL
+//		List<DvoLogs> dvoLogModel = retrieveReportDetails.getReportModelForDvoLogs();
+		model.addObject("commonKioskData", commonKioskData);
+        model.setViewName("load");
+		return model;
+	}
+	
     /**
      * Controller for Credit card customized search
      * @param kioskId

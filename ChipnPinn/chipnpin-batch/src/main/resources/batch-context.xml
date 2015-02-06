@@ -34,72 +34,6 @@
  
   <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
 	
-	<!-- <batch:job id="importLogs" job-repository="jobRepository">
-		<batch:step id="readWriteLogs">
-			<batch:tasklet>
-				<batch:chunk reader="multiLineReaderDelegate" processor="recordProcessor" writer="lineWriter" commit-interval="10" >
-					
-				</batch:chunk>
-			</batch:tasklet>
-		</batch:step>
-	</batch:job> -->
-	
-	<job id="importLogs" xmlns="http://www.springframework.org/schema/batch">
-		<!-- <batch:decision decider="decider" id="decider">
-		    <batch:next on="CONTINUABLE" to="readWriteLogs" />
-		    <batch:end on="FINISHED" />
-	  	</batch:decision> -->
-		<step id="readWriteLogs">
-			<tasklet>
-				<chunk reader="multiResReader" processor="recordProcessor" writer="lineWriter"
-					commit-interval="2" >
-				</chunk>
-			</tasklet>
-		</step>
-	</job>
-	
-	
-	<!-- <bean id="decider" class="MyDecider">
-  		<property name="resourceHolderBean" ref="resourceHolderBean" />
-	</bean> -->
-	<!-- 
-	<job id="importSoapLogs" xmlns="http://www.springframework.org/schema/batch">
-		<step id="readSoapWriteLogs">
-			<tasklet>
-				<chunk reader="multiLineReaderDelegate" processor="recordProcessorCreditCard" writer="lineWriterCreditCard"
-					commit-interval="10" />
-			</tasklet>
-		</step>
-	</job>
-		<bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader" scope="step"> -->
-	<!-- <bean id="multiLineReaderDelegate" class="org.springframework.batch.item.file.MultiResourceItemReader">
-		<property name="resources" value="file:C:/data/download/04/data*webkiosk_technical.*" />
-		<property name="resources" value="file:C:/data/download/test/data*webkiosk_technical.*" />						   
-		<property name="delegate" ref="delegateMultiLineReader" />
-		<property name="delegate" ref="multilineReader" />
-		<property name="strict" value="true" />
-	</bean> -->
-
-	<bean id="multiResReader" class="com.tcs.batch.file.MultiResReader"
-		scope="step">
-		<!-- <property name="resources" value="file:C:/data/download/test/data*webkiosk_technical.*" /> --> <!-- For Testing purpose		 -->
-		<property name="resources" value="file:C:/data/download/03/data*webkiosk_technical.*" />
-		<property name="delegate" ref="delegateMultiLineReader" />
-		<property name="strict" value="true" />
-		<property name="resourceHolderBean" ref="resourceHolderBean"></property>
-	</bean>
-	
-	<!-- run every 10 seconds -->
-	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-				<property name="jobDetail" ref="jobDetail" />
-				<property name="cronExpression" value="0 27 00 ? * *" /><!-- 
-					vijay value="second minute hour ? * *" -->
-			</bean>
-		</property>
-	</bean>
-	
 	<bean id="delegateMultiLineReader" class="org.springframework.batch.item.file.FlatFileItemReader">
 		<property name="lineMapper">
 			<bean
@@ -107,25 +41,71 @@
 		</property>
 	</bean>
 	
+	<!--  Record Processor class -->
 	<bean id="resourceHolderBean" class="com.tcs.batch.file.ResourceHolderBean" />
-	<bean id="recordProcessor" class="com.tcs.batch.file.RecordProcessor">
+	<bean id="webkioskTechnicalRecordProcessor" class="com.tcs.batch.file.WebkioskTechnicalRecordProcessor">
 		<property name="resourceHolderBean" ref="resourceHolderBean" />
 	</bean>
-	
-	<bean id="lineWriter" class="com.tcs.batch.file.LineWriter" />
+	<bean id="ssciMessagingRecordProcessor" class="com.tcs.batch.file.kiosk.SsciMessagingRecordProcessor">
+		<property name="resourceHolderBean" ref="resourceHolderBean" />
+	</bean>
 	<bean id="recordProcessorCreditCard" class="com.tcs.batch.file.CreditCardRecordProcessor" />
+	
+	
+	<!--  Writer class -->
+	<bean id="lineWriter" class="com.tcs.batch.file.LineWriter" />
 	<bean id="lineWriterCreditCard" class="com.tcs.batch.file.CreditCardLineWriter" />
-	<!-- run every 10 seconds -->
-  <!-- <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-	<property name="triggers">
-	  <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="jobDetail" />
-		<property name="cronExpression" value="0 24 11 ? * *" />
-	  </bean>
-	</property>
-  </bean> -->
- 
-  <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+	
+	<!-- LineReader class -->
+	<bean id="webkioskTechnicalLineReader" class="com.tcs.batch.file.LineReader"
+		scope="step">
+		<!-- <property name="resources" value="file:C:/data/download/test/data*webkiosk_technical.*" /> --> <!-- For Testing purpose		 -->
+		<property name="resources" value="file:C:/data/download/data*webkiosk_technical.*" />
+		<property name="delegate" ref="delegateMultiLineReader" />
+		<property name="strict" value="true" />
+		<property name="resourceHolderBean" ref="resourceHolderBean"></property>
+	</bean>
+	<bean id="ssciMessagingLineReader" class="com.tcs.batch.file.LineReader" scope="step">
+		<!-- <property name="resources" value="file:C:/data/download/test/test1.txt"></property> -->
+		<property name="resources" value="file:C:/data/download/test/ssci_NEWTEST.txt"></property>
+		<property name="delegate" ref="delegateMultiLineReader"></property>
+		<property name="strict" value="true"></property>
+		<property name="resourceHolderBean" ref="resourceHolderBean"></property>
+	</bean>
+	
+ 	<!-- Triggers for batch jobs - run every 10 seconds -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+				<property name="jobDetail" ref="jobDetail" />
+				<property name="cronExpression" value="0 10 13 ? * *" /><!-- 
+					vijay value="second minute hour ? * *" -->
+			</bean>
+		</property>
+	</bean>
+	
+  <job id="importLogs" xmlns="http://www.springframework.org/schema/batch">
+		<!-- <batch:decision decider="decider" id="decider">
+		    <batch:next on="CONTINUABLE" to="readWriteLogs" />
+		    <batch:end on="FINISHED" />
+	  	</batch:decision> -->
+		<step id="readWriteLogs">
+			<tasklet>
+				<chunk reader="webkioskTechnicalLineReader" processor="webkioskTechnicalRecordProcessor" writer="lineWriter"
+					commit-interval="2" >
+				</chunk>
+			</tasklet>
+		</step>
+		<!-- <step id="readWriteSsciMsgs">
+			<tasklet>
+				<chunk reader="ssciMessagingLineReader" processor="ssciMessagingRecordProcessor" writer="lineWriter"
+					commit-interval="2" >
+				</chunk>
+			</tasklet>
+		</step> -->
+	</job>
+	
+	<bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
 	<property name="jobClass" value="com.tcs.batch.file.JobLauncherDetails" />
 	<property name="group" value="quartz-batch" />
 	<property name="jobDataAsMap">
@@ -138,6 +118,6 @@
 	</property>
   </bean>
 
-	<context:component-scan base-package="com.klm.chipnpin.chipnpinpersistance.*" />
+<context:component-scan base-package="com.klm.chipnpin.chipnpinpersistance.*" />
 	
 </beans>

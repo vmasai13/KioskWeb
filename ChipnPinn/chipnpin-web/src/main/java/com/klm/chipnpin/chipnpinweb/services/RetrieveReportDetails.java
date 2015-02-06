@@ -1,7 +1,9 @@
 package com.klm.chipnpin.chipnpinweb.services;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,6 +11,7 @@ import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.klm.chipnpin.chipnpinpersistance.domain.LogBean;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.BillLogs;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.CreditcardServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.DvoLogs;
@@ -17,8 +20,10 @@ import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.domain.ServiceDetails;
 import com.klm.chipnpin.chipnpinweb.chipnpinpersistance.repository.ReportDetails;
 import com.klm.chipnpin.chipnpinweb.model.CreditCardReportModel;
 import com.klm.chipnpin.chipnpinweb.model.KacReportDisplayModel;
+import com.klm.chipnpin.chipnpinweb.model.LogBeanDisplayModel;
 import com.klm.chipnpin.chipnpinweb.model.ReportModel;
 import com.klm.chipnpin.chipnpinweb.transformer.ServiceDetailsFromDBToDomain;
+import com.klm.chipnpin.chipnpinweb.util.ChipnPinResources;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -28,6 +33,10 @@ public class RetrieveReportDetails {
 
     @Autowired
     ReportDetails reportDetails;
+    
+    // For getting the resources from property file
+    @Autowired
+    ChipnPinResources chipnPinResources;
     
     @Autowired
     ServiceDetailsFromDBToDomain doamin;
@@ -59,10 +68,49 @@ public class RetrieveReportDetails {
         return doamin.convertToCreditCardDomain(serviceDetailsFromDB);
     }
 
+    /**
+     * Method to retrieve Log details and changing into display model
+     * @return
+     */
+    public List<LogBeanDisplayModel> getPrefCheckDetails() {
+    	List<LogBeanDisplayModel> reports = new ArrayList<LogBeanDisplayModel>();
+    	Map<String, LogBeanDisplayModel> logBeanDisplayMap = new TreeMap<String, LogBeanDisplayModel>();
+    	
+    	DBCursor cursor = reportDetails.getPrefCheckDetails();
+    	while (null != cursor && cursor.hasNext()) {
+    		DBObject dbObject = cursor.next();
+    		String sessionId = ((BasicDBObject) dbObject.get("logBean")).get("sessionId").toString();
+    		LogBeanDisplayModel logBeanDisplayModel = logBeanDisplayMap.get(sessionId);
+            if (logBeanDisplayModel == null) {
+            	logBeanDisplayModel = new LogBeanDisplayModel();
+            	boolean isRequest = (Boolean) dbObject.get("isRequest");
+            	
+            	logBeanDisplayModel.setDateStr((String)dbObject.get("_id"));
+            	logBeanDisplayModel.setKioskId((String)dbObject.get("kioskId"));
+            	logBeanDisplayModel.setServiceName((String)(dbObject.get("serviceName")));
+            	logBeanDisplayMap.put(sessionId, logBeanDisplayModel);
+            	boolean isResponse = (Boolean) dbObject.get("isResponse");
+            	if(isResponse) {
+            		
+            	} else {
+            		
+            	}
+//            	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+//            	Date start = format.parse(startTime);
+            }
+    	}
+//    	logBeanDisplayModel.setCustomSearchedCriteria(customSearchCriteria);
+    	reports = new ArrayList<LogBeanDisplayModel>(logBeanDisplayMap.values());
+    	return reports;
+    }
+    
+    private void calcualteResponsetime() {
+    	
+    }
     
     public List<KacReportDisplayModel> getKacReportModelForCustom(String kacNumber, String from, String to, String kioskId) {
     	List<KacReportDisplayModel> reports = new ArrayList<KacReportDisplayModel>();
-    	Map<String, KacReportDisplayModel> KacReportDisplayMap = new TreeMap<String, KacReportDisplayModel>();
+    	Map<String, KacReportDisplayModel> kacReportDisplayMap = new TreeMap<String, KacReportDisplayModel>();
     	String customSearchCriteria;
     	if(!from.isEmpty() && !to.isEmpty()) {
     		customSearchCriteria = " (From:" + from + ")-(To:" + to+")";
@@ -83,12 +131,12 @@ public class RetrieveReportDetails {
     		DBObject dbObject = cursor.next();
     		String dateStr = ((BasicDBObject) dbObject.get("serviceDetails")).get("dateStr").toString();
     		String dateAndHour = dateStr.substring(0, dateStr.indexOf(":"));
-            KacReportDisplayModel kacReportDisplayModel = KacReportDisplayMap.get(dateAndHour);
+            KacReportDisplayModel kacReportDisplayModel = kacReportDisplayMap.get(dateAndHour);
             if (kacReportDisplayModel == null) {
             	kacReportDisplayModel = new KacReportDisplayModel();
-            	kacReportDisplayModel.setDate(dateAndHour+":00");
+            	kacReportDisplayModel.setDateStr(dateAndHour+":00");
             	kacReportDisplayModel.setCustomSearchedCriteria(customSearchCriteria);
-            	KacReportDisplayMap.put(dateAndHour, kacReportDisplayModel);
+            	kacReportDisplayMap.put(dateAndHour, kacReportDisplayModel);
             }
             String value = (String) dbObject.get("kacNumber");
             addKacNumber(value, kacReportDisplayModel);
@@ -97,9 +145,9 @@ public class RetrieveReportDetails {
     	if(!isKacFound) {
     		KacReportDisplayModel kacReportDisplayModel = new KacReportDisplayModel();
     		kacReportDisplayModel.setCustomSearchedCriteria(customSearchCriteria);
-    		KacReportDisplayMap.put("00:00", kacReportDisplayModel);
+    		kacReportDisplayMap.put("00:00", kacReportDisplayModel);
     	}
-    	reports = new ArrayList<KacReportDisplayModel>(KacReportDisplayMap.values());
+    	reports = new ArrayList<KacReportDisplayModel>(kacReportDisplayMap.values());
     	return reports;
     }
     
@@ -118,23 +166,23 @@ public class RetrieveReportDetails {
      */
     public List<KacReportDisplayModel> getKacReportModelForAllKiosk() throws ParseException {
     	List<KacReportDisplayModel> reports = new ArrayList<KacReportDisplayModel>();
-    	Map<String, KacReportDisplayModel> KacReportDisplayMap = new TreeMap<String, KacReportDisplayModel>();
+    	Map<String, KacReportDisplayModel> kacReportDisplayMap = new TreeMap<String, KacReportDisplayModel>();
     	DBCursor cursor = reportDetails.findKacDetailsForAllKiosk();
     	while (cursor.hasNext()) {
     		DBObject dbObject = cursor.next();
     		String dateStr = ((BasicDBObject) dbObject.get("serviceDetails")).get("dateStr").toString();
     		String dateAndHour = dateStr.substring(0, dateStr.indexOf(":"));
-            KacReportDisplayModel kacReportDisplayModel = KacReportDisplayMap.get(dateAndHour);
+            KacReportDisplayModel kacReportDisplayModel = kacReportDisplayMap.get(dateAndHour);
             if (kacReportDisplayModel == null) {
             	kacReportDisplayModel = new KacReportDisplayModel();
-            	kacReportDisplayModel.setDate(dateAndHour+":00");
-            	KacReportDisplayMap.put(dateAndHour, kacReportDisplayModel);
+            	kacReportDisplayModel.setDateStr(dateAndHour+":00");
+            	kacReportDisplayMap.put(dateAndHour, kacReportDisplayModel);
             }
             Integer count = null;
             String value = (String) dbObject.get("kacNumber");
             addKacNumber(value, kacReportDisplayModel);
     	}
-    	reports = new ArrayList<KacReportDisplayModel>(KacReportDisplayMap.values());
+    	reports = new ArrayList<KacReportDisplayModel>(kacReportDisplayMap.values());
     	return reports;
     }
     

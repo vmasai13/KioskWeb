@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.klm.chipnpin.chipnpinpersistance.domain.KACServiceDetails;
+import com.klm.chipnpin.chipnpinpersistance.domain.LogBean;
 import com.klm.chipnpin.chipnpinpersistance.domain.ServiceDetails;
 
 
@@ -55,6 +56,12 @@ public class ReportDetailsImpl implements ReportDetails{
 	@Override
 	public void saveKac(KACServiceDetails detail) {
 		mongoTemplate.save(detail);
+		
+	}
+	
+	@Override
+	public void saveLogBean(LogBean bean) {
+		mongoTemplate.save(bean);
 		
 	}
 }

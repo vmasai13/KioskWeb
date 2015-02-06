@@ -206,7 +206,7 @@ public class ReportDetailsImpl implements ReportDetails{
 		List<DvoLogs> dvoLogDetails = mongoTemplate.findAll(DvoLogs.class);
 		return Collections.unmodifiableList(dvoLogDetails);
 	}
-
+	
 	/* 
 	 * Getting credit card details
 	 * (non-Javadoc)
@@ -230,5 +230,12 @@ public class ReportDetailsImpl implements ReportDetails{
 		if(null != query)
 			serviceDetails = mongoTemplate.find(query, CreditcardServiceDetails.class);
 		return Collections.unmodifiableList(serviceDetails);
+	}
+
+	@Override
+	public DBCursor getPrefCheckDetails() {
+		DBCollection logBean = mongoTemplate.getCollection("logBean");
+		DBCursor cursor = logBean.find();
+		return cursor;
 	}
 }
